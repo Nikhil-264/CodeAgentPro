@@ -14,6 +14,8 @@ class DocsStore(BaseVectorStore):
             "Pytest basics: Pytest runs tests in test_*.py or *_test.py. Test functions must start with test_. Example:\ndef test_addition():\n    assert 1 + 1 == 2",
             "Pytest async: To test async functions, use pytest-asyncio and mark the test with @pytest.mark.asyncio. Example:\n@pytest.mark.asyncio\nasync def test_async():\n    res = await async_func()\n    assert res is True",
             "Uvicorn: Run a FastAPI app using uvicorn.run('main:app', host='0.0.0.0', port=8000, reload=True) in the entrypoint file.",
+            "SQLAlchemy connection: To create a SQLite engine and session, use:\nfrom sqlalchemy import create_engine\nfrom sqlalchemy.orm import sessionmaker\nengine = create_engine('sqlite:///test.db')\nSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)",
+            "Pydantic Model: To define schemas with Pydantic for validation, use BaseModel. Example:\nfrom pydantic import BaseModel\nclass UserSchema(BaseModel):\n    id: int\n    username: str\n    email: str",
         ]
         metadatas = [
             {"source": "fastapi_docs", "topic": "fastapi_get", "language": "python"},
@@ -22,6 +24,8 @@ class DocsStore(BaseVectorStore):
             {"source": "pytest_docs", "topic": "pytest_basics", "language": "python"},
             {"source": "pytest_docs", "topic": "pytest_asyncio", "language": "python"},
             {"source": "uvicorn_docs", "topic": "uvicorn_run", "language": "python"},
+            {"source": "sqlalchemy_docs", "topic": "sqlalchemy_sqlite", "language": "python"},
+            {"source": "pydantic_docs", "topic": "pydantic_schema", "language": "python"},
         ]
         ids = [f"doc_builtin_{i}" for i in range(len(docs))]
         
