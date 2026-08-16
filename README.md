@@ -35,7 +35,7 @@ All agents are orchestrated via **LangGraph** as a compiled state graph with con
 
 - Python 3.11+
 - Node.js 20+
-- Docker Desktop running
+- Docker Desktop (Optional: used for secure containerized execution sandboxing; falls back to local execution if missing/not running)
 - [Ollama](https://ollama.com) installed
 
 ---
@@ -218,7 +218,8 @@ codeagent-pro/
 
 **Why Ollama?** Fully local — no API costs, no data leaving your machine. Swap `deepseek-coder:6.7b` for any model you have pulled.
 
-**Why Docker sandbox?** Generated code runs with `--network none`, memory cap, and CPU cap. It cannot touch your host filesystem or make network calls.
+**Why Docker sandbox?** Generated code runs with `--network none`, memory cap, and CPU cap. It cannot touch your host filesystem or make network calls. 
+*Note: If Docker is not running or not installed, the sandbox automatically falls back to local execution on your host machine (using the active Python virtual environment). You can also force local execution mode by setting `FORCE_LOCAL_SANDBOX=true` in your environment.*
 
 **Why ChromaDB?** Persistent local vector store — no external service needed. Error memory grows with every run, making the debugger smarter over time.
 
