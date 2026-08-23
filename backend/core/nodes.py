@@ -77,7 +77,9 @@ async def node_code_generator(state: PipelineState) -> dict:
 async def node_sandbox_execute(state: PipelineState) -> dict:
     events = state["events"] + [_event("Sandbox", "running", {"phase": "initial_run"})]
     try:
-        result = await ExecutionSandbox().run_code(state["current_code"])
+        result = await ExecutionSandbox().run_code(
+            state["current_code"], language=state.get("language", "Python")
+        )
         status = "success" if result["success"] else "warning"
         events = events + [_event("Sandbox", status, result)]
         return {
@@ -102,7 +104,7 @@ async def node_sandbox_execute(state: PipelineState) -> dict:
 async def node_test_generator(state: PipelineState) -> dict:
     events = state["events"] + [_event("TestGenerator", "running")]
     result = await TestGeneratorAgent(_llm(state)).run(
-        state["current_code"], state["task"]
+        state["current_code"], state["task"], language=state.get("language", "Python")
     )
     if not result["success"]:
         return {
@@ -123,7 +125,7 @@ async def node_run_tests(state: PipelineState) -> dict:
                                         {"phase": "test_run", "attempt": attempt})]
     try:
         result = await ExecutionSandbox().run_tests(
-            state["current_code"], state["test_code"]
+            state["current_code"], state["test_code"], language=state.get("language", "Python")
         )
         status = "success" if result["success"] else "warning"
         events = events + [_event("Sandbox", status, {**result, "attempt": attempt})]
@@ -195,7 +197,8 @@ async def node_refactor(state: PipelineState) -> dict:
     events = state["events"] + [_event("Refactor", "running")]
     result = await RefactorAgent(_llm(state)).run(state["current_code"])
     events = events + [_event("Refactor",
-                               "success" if result["success"] else "warning")]
+                               "success" if result["success"] else "warning",
+                               {"code": result["refactored_code"], "refactored_code": result["refactored_code"]})]
     return {
         "final_code": result["refactored_code"],
         "current_code": result["refactored_code"],

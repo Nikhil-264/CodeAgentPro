@@ -17,7 +17,6 @@ export default function PipelineBar({ events }) {
         for (const e of events) {
             let key = e.step
             if (key === 'Debugger') key = 'DebugLoop'
-            // Once success/failed is set, don't overwrite with a later 'running'
             const prev = map[key]
             if (prev === 'success' || prev === 'failed') continue
             map[key] = e.status

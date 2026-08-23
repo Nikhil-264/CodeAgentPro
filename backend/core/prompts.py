@@ -23,23 +23,24 @@ Requirements:
 Return only the code."""
 
 
-TEST_GENERATOR_SYSTEM = """You are a senior QA engineer who writes comprehensive Pytest test suites.
-Return ONLY valid Python test code using pytest. No explanations."""
+TEST_GENERATOR_SYSTEM = """You are a senior QA engineer. You write comprehensive test suites for software.
+Return ONLY valid, runnable test code for the specified language. No explanations."""
 
-TEST_GENERATOR_PROMPT = """Write pytest tests for the following code:
+TEST_GENERATOR_PROMPT = """Write comprehensive unit tests for the following code:
+
+LANGUAGE: {language}
 
 CODE:
 {code}
 
 TASK DESCRIPTION: {task}
 
-Requirements:
-- Cover happy paths and edge cases
-- Use pytest fixtures where appropriate
-- Tests should be runnable with: pytest test_solution.py
-- Import the solution from 'solution.py'
+Requirements by language:
+- For Python: Use pytest. Import from 'solution.py'.
+- For JavaScript: Use Node.js assert/test runner (`const assert = require('assert')`). Require from './solution.js'.
+- For C++: Write a C++ test file with `int main()`, `#include <cassert>`, `#include "solution.cpp"` (or relevant declarations), and run assertions (`assert(...)`). Print "All tests passed!" and return 0 on success.
 
-Return only the test code."""
+Return ONLY the test code."""
 
 
 DEBUGGER_SYSTEM = """You are an expert debugger. You analyze error messages and fix code precisely.

@@ -7,33 +7,57 @@ import CodeViewer from './components/CodeViewer'
 const EXAMPLE_TASKS = [
   'Write a Python function that finds all prime numbers up to N using the Sieve of Eratosthenes',
   'Build a simple REST API with FastAPI for a todo list with CRUD operations',
-  'Write a binary search implementation with comprehensive edge case handling',
-  'Create a Python class for a stack data structure with push, pop, peek, and is_empty methods',
+  'Write a binary search implementation with comprehensive edge case handling in C++',
+  'Create a JavaScript class for a stack data structure with push, pop, peek, and is_empty methods',
 ]
+
+const DEFAULT_MODELS = {
+  ollama: ['deepseek-coder:6.7b', 'llama3'],
+  groq: ['llama-3.3-70b-versatile', 'llama3-70b-8192', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
+  gemini: ['gemini-2.5-flash'],
+}
 
 export default function App() {
   const { state, run, stop, fetchRagStats, seedDocs } = useAgent()
   const [activeTab, setActiveTab] = useState('terminal')
   const [ollamaOk, setOllamaOk] = useState(null)
+  const [providerInfo, setProviderInfo] = useState(null)
 
   // Config form state
   const [task, setTask] = useState('')
   const [language, setLanguage] = useState('Python')
   const [framework, setFramework] = useState('standard library')
+  const [provider, setProvider] = useState('ollama')
   const [model, setModel] = useState('deepseek-coder:6.7b')
   const [skipTests, setSkipTests] = useState(false)
   const [skipRefactor, setSkipRefactor] = useState(false)
 
   const running = state.status === 'running'
 
-  // On mount: check Ollama + fetch RAG stats
+  // On mount: check provider status + fetch RAG stats
   useEffect(() => {
-    fetch('http://localhost:8000/api/health/ollama')
+    fetch('http://localhost:8000/api/models')
       .then(r => r.json())
-      .then(d => setOllamaOk(d.ollama_running))
+      .then(d => {
+        setProviderInfo(d)
+        setOllamaOk(d?.ollama?.available ?? false)
+        if (d?.ollama?.models && d.ollama.models.length > 0) {
+          DEFAULT_MODELS.ollama = d.ollama.models
+          if (provider === 'ollama') setModel(d.ollama.models[0])
+        }
+      })
       .catch(() => setOllamaOk(false))
     fetchRagStats()
   }, [])
+
+  // Update default model when provider changes
+  const handleProviderChange = (newProvider) => {
+    setProvider(newProvider)
+    const available = providerInfo?.[newProvider]?.models || DEFAULT_MODELS[newProvider]
+    if (available && available.length > 0) {
+      setModel(available[0])
+    }
+  }
 
   // Auto-switch to terminal tab when pipeline starts
   useEffect(() => {
@@ -47,12 +71,30 @@ export default function App() {
 
   const handleRun = () => {
     if (!task.trim()) return
-    run({ task, language, framework, model, skip_tests: skipTests, skip_refactor: skipRefactor })
+    run({ task, language, framework, provider, model, skip_tests: skipTests, skip_refactor: skipRefactor })
   }
 
   const handleStop = () => stop()
 
-  const codeEventCount = state.events.filter(e => e.step === 'CodeGenerator' && e.status === 'success').length
+  const availableModels = (providerInfo?.[provider]?.models?.length > 0)
+    ? providerInfo[provider].models
+    : DEFAULT_MODELS[provider] || []
+
+  const canRun = task.trim() && (
+    provider !== 'ollama' || ollamaOk === true
+  )
+
+  const getFilename = () => {
+    if (language === 'JavaScript') return 'solution.js'
+    if (language === 'C++') return 'solution.cpp'
+    return 'solution.py'
+  }
+
+  const getTestFilename = () => {
+    if (language === 'JavaScript') return 'test_solution.test.js'
+    if (language === 'C++') return 'test_solution_test.cpp'
+    return 'test_solution.py'
+  }
 
   return (
     <div className="app">
@@ -67,8 +109,10 @@ export default function App() {
         </div>
         <div className="header-spacer" />
         <div className="status-badge">
-          <div className={`status-dot ${ollamaOk === true ? 'online' : ollamaOk === false ? 'error' : ''}`} />
-          {ollamaOk === true ? 'Ollama online' : ollamaOk === false ? 'Ollama offline' : 'Checking…'}
+          <div className={`status-dot ${provider === 'ollama' ? (ollamaOk ? 'online' : 'error') : 'online'}`} />
+          {provider === 'ollama'
+            ? (ollamaOk ? 'Ollama Online' : 'Ollama Offline')
+            : `${provider.toUpperCase()} Mode`}
         </div>
       </header>
 
@@ -116,19 +160,52 @@ export default function App() {
           {/* Config */}
           <div className="panel-section">
             <div className="section-label">Configuration</div>
+
+            {/* Provider Selection */}
             <div className="config-row">
-              <label className="config-label">Model</label>
-              <input className="config-input" value={model} onChange={e => setModel(e.target.value)} disabled={running} />
-            </div>
-            <div className="config-row">
-              <label className="config-label">Language</label>
-              <select className="config-select" value={language} onChange={e => setLanguage(e.target.value)} disabled={running}>
-                <option>Python</option>
-                <option>JavaScript</option>
-                <option>TypeScript</option>
-                <option>Go</option>
+              <label className="config-label">Provider</label>
+              <select
+                className="config-select"
+                value={provider}
+                onChange={e => handleProviderChange(e.target.value)}
+                disabled={running}
+              >
+                <option value="ollama">Ollama (Local)</option>
+                <option value="groq">Groq (API Key)</option>
+                <option value="gemini">Gemini (API Key)</option>
               </select>
             </div>
+
+            {/* Model Selection */}
+            <div className="config-row">
+              <label className="config-label">Model</label>
+              <select
+                className="config-select"
+                value={model}
+                onChange={e => setModel(e.target.value)}
+                disabled={running}
+              >
+                {availableModels.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Language Selection: Python, JavaScript, C++ */}
+            <div className="config-row">
+              <label className="config-label">Language</label>
+              <select
+                className="config-select"
+                value={language}
+                onChange={e => setLanguage(e.target.value)}
+                disabled={running}
+              >
+                <option value="Python">Python</option>
+                <option value="JavaScript">JavaScript</option>
+                <option value="C++">C++</option>
+              </select>
+            </div>
+
             <div className="config-row">
               <label className="config-label">Framework</label>
               <input className="config-input" value={framework} onChange={e => setFramework(e.target.value)} disabled={running} />
@@ -156,7 +233,7 @@ export default function App() {
                 ■ Stop Agent
               </button>
             ) : (
-              <button className="run-btn" onClick={handleRun} disabled={!task.trim() || ollamaOk === false}>
+              <button className="run-btn" onClick={handleRun} disabled={!canRun}>
                 ▶ Run Agent
                 <span style={{ opacity: 0.6, fontSize: 10 }}>ctrl+enter</span>
               </button>
@@ -183,11 +260,11 @@ export default function App() {
                     <div className="rag-stat-label">Codebase</div>
                   </div>
                   <div className="rag-stat">
-                    <div className="rag-stat-value">{state.ragStats?.doc_chunks ?? '—'}</div>
+                    <div className="rag-stat-value">{state.ragStats?.docs_chunks ?? '—'}</div>
                     <div className="rag-stat-label">Docs</div>
                   </div>
                   <div className="rag-stat">
-                    <div className="rag-stat-value">{state.ragStats?.error_fixes ?? '—'}</div>
+                    <div className="rag-stat-value">{state.ragStats?.error_memory_chunks ?? '—'}</div>
                     <div className="rag-stat-label">Fixes</div>
                   </div>
                 </div>
@@ -225,13 +302,13 @@ export default function App() {
 
               {activeTab === 'code' && (
                 state.currentCode
-                  ? <CodeViewer code={state.currentCode} filename="solution.py" />
+                  ? <CodeViewer code={state.currentCode} filename={getFilename()} />
                   : <div className="empty-state"><div className="empty-icon">⌨</div><div>No code yet</div></div>
               )}
 
               {activeTab === 'tests' && (
                 state.testCode
-                  ? <CodeViewer code={state.testCode} filename="test_solution.py" />
+                  ? <CodeViewer code={state.testCode} filename={getTestFilename()} />
                   : <div className="empty-state"><div className="empty-icon">⚡</div><div>No tests yet</div></div>
               )}
 

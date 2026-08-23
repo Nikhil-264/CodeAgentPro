@@ -12,18 +12,11 @@ class TestGeneratorAgent:
         self.llm = llm
         self.name = "TestGenerator"
 
-    async def run(self, code: str, task: str) -> dict:
+    async def run(self, code: str, task: str, language: str = "Python") -> dict:
         """
-        Generate a pytest test file for the given code.
-
-        Returns:
-            {
-                "test_code": str,
-                "agent": str,
-                "success": bool
-            }
+        Generate a test file for the given code.
         """
-        prompt = TEST_GENERATOR_PROMPT.format(code=code, task=task)
+        prompt = TEST_GENERATOR_PROMPT.format(code=code, task=task, language=language)
 
         try:
             test_code = await self.llm.generate(prompt, system=TEST_GENERATOR_SYSTEM)

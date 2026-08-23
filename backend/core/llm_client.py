@@ -1,29 +1,60 @@
-import httpx
+import os
 import json
+import httpx
 from typing import AsyncGenerator
 
-OLLAMA_BASE_URL = "http://localhost:11434"
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
 
 class OllamaClient:
     """
-    Thin async client for Ollama's local LLM API.
-    Supports both streaming and non-streaming completions.
+    Multi-provider async LLM client supporting Ollama, Groq, and Google Gemini.
     """
 
-    def __init__(self, model: str = "deepseek-coder:6.7b"):
-        self.model = model
+    def __init__(self, model: str = "deepseek-coder:6.7b", provider: str = None):
+        self.raw_model = model
+        self.provider = provider
+        
+        # Parse provider prefix if present (e.g. "groq:llama-3.3-70b-versatile")
+        if ":" in model and not provider:
+            parts = model.split(":", 1)
+            if parts[0].lower() in ["ollama", "groq", "gemini"]:
+                self.provider = parts[0].lower()
+                self.model = parts[1]
+            else:
+                self.model = model
+        else:
+            self.model = model
+
+        if not self.provider:
+            # Auto-detect by model name pattern
+            if "gemini" in self.model.lower():
+                self.provider = "gemini"
+            elif any(k in self.model.lower() for k in ["groq", "llama-3.3", "mixtral", "gemma2-9b"]):
+                self.provider = "groq"
+            else:
+                self.provider = "ollama"
+
         self.base_url = OLLAMA_BASE_URL
 
     async def generate(self, prompt: str, system: str = "") -> str:
-        """Single-shot completion — returns full response string."""
+        """Generate single-shot completion from selected provider."""
+        if self.provider == "groq":
+            return await self._generate_groq(prompt, system)
+        elif self.provider == "gemini":
+            return await self._generate_gemini(prompt, system)
+        else:
+            return await self._generate_ollama(prompt, system)
+
+    # ── Ollama Provider ───────────────────────────────────────────────────────
+    async def _generate_ollama(self, prompt: str, system: str = "") -> str:
         payload = {
             "model": self.model,
             "prompt": prompt,
             "system": system,
             "stream": False,
             "options": {
-                "temperature": 0.2,   # Low temp = deterministic code
+                "temperature": 0.2,
                 "top_p": 0.9,
                 "num_predict": 4096,
             }
@@ -34,39 +65,90 @@ class OllamaClient:
                 json=payload
             )
             response.raise_for_status()
-            return response.json()["response"]
+            return response.json().get("response", "")
 
-    async def stream(self, prompt: str, system: str = "") -> AsyncGenerator[str, None]:
-        """Streaming completion — yields tokens as they arrive."""
+    # ── Groq Provider ─────────────────────────────────────────────────────────
+    async def _generate_groq(self, prompt: str, system: str = "") -> str:
+        api_key = os.getenv("GROQ_API_KEY", "").strip()
+        if not api_key:
+            raise ValueError("GROQ_API_KEY is missing from environment / .env file.")
+
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        messages = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+
         payload = {
             "model": self.model,
-            "prompt": prompt,
-            "system": system,
-            "stream": True,
-            "options": {"temperature": 0.2, "top_p": 0.9, "num_predict": 4096},
+            "messages": messages,
+            "temperature": 0.2,
+            "max_tokens": 4096,
         }
-        async with httpx.AsyncClient(timeout=180.0) as client:
-            async with client.stream("POST", f"{self.base_url}/api/generate", json=payload) as resp:
-                resp.raise_for_status()
-                async for line in resp.aiter_lines():
-                    if line:
-                        chunk = json.loads(line)
-                        yield chunk.get("response", "")
-                        if chunk.get("done"):
-                            break
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            res_json = response.json()
+            return res_json["choices"][0]["message"]["content"]
 
+    # ── Gemini Provider ───────────────────────────────────────────────────────
+    async def _generate_gemini(self, prompt: str, system: str = "") -> str:
+        api_key = (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or "").strip()
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is missing from environment / .env file.")
+
+        model_name = self.model
+        if not model_name.startswith("models/"):
+            model_name = f"models/{model_name}"
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/{model_name}:generateContent?key={api_key}"
+        
+        full_text = f"System Instruction: {system}\n\nUser Request: {prompt}" if system else prompt
+        payload = {
+            "contents": [
+                {
+                    "parts": [{"text": full_text}]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.2,
+                "maxOutputTokens": 4096,
+            }
+        }
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.post(url, json=payload)
+            response.raise_for_status()
+            res_json = response.json()
+            candidates = res_json.get("candidates", [])
+            if not candidates:
+                raise ValueError("Gemini returned empty response.")
+            parts = candidates[0].get("content", {}).get("parts", [])
+            return parts[0].get("text", "") if parts else ""
+
+    # ── Helpers ───────────────────────────────────────────────────────────────
     async def list_models(self) -> list[str]:
         """Return available local Ollama models."""
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(f"{self.base_url}/api/tags")
-            resp.raise_for_status()
-            return [m["name"] for m in resp.json().get("models", [])]
-
-    async def is_available(self) -> bool:
-        """Ping Ollama to check if it's running."""
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
+                resp = await client.get(f"{self.base_url}/api/tags")
+                if resp.status_code == 200:
+                    return [m["name"] for m in resp.json().get("models", [])]
+        except Exception:
+            pass
+        return []
+
+    async def is_available(self) -> bool:
+        """Ping Ollama to check if local server is reachable."""
+        try:
+            async with httpx.AsyncClient(timeout=3.0) as client:
                 resp = await client.get(f"{self.base_url}/api/tags")
                 return resp.status_code == 200
         except Exception:
             return False
+
+# Alias for backward compatibility
+LLMClient = OllamaClient

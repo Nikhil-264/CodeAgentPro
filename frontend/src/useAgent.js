@@ -85,6 +85,9 @@ export function useAgent() {
       if (step === 'TestGenerator' && status === 'success' && data?.test_code) {
         patch.testCode = data.test_code
       }
+      if (step === 'Refactor' && status === 'success' && (data?.refactored_code || data?.code)) {
+        patch.currentCode = data.refactored_code || data.code
+      }
       if (step === 'Pipeline' && status === 'success' && data?.final_code) {
         patch.currentCode = data.final_code
         patch.testCode = data.test_code || ''

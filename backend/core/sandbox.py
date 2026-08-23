@@ -20,7 +20,6 @@ async def check_docker() -> bool:
 
     try:
         import subprocess
-        # Run a quick check to see if the Docker daemon is actually running
         res = await asyncio.to_thread(
             subprocess.run,
             ["docker", "info"],
@@ -35,84 +34,102 @@ async def check_docker() -> bool:
     return _DOCKER_AVAILABLE
 
 
-
 class ExecutionSandbox:
     """
-    Stage 2: Runs code inside a Docker container.
-    Prevents the generated code from touching the host system.
+    Runs code inside a Docker container or local fallback sandbox.
+    Supports Python, JavaScript, and C++.
     """
 
     DOCKER_IMAGE = "python:3.11-slim"
     TIMEOUT_SECONDS = 30
 
-    async def run_code(self, code: str, filename: str = "solution.py") -> dict:
-        """
-        Write code to a temp file and execute it inside Docker.
-        Falls back to local execution if Docker is not available.
-
-        Returns:
-            {
-                "stdout": str,
-                "stderr": str,
-                "exit_code": int,
-                "success": bool,
-                "timed_out": bool
-            }
-        """
+    async def run_code(self, code: str, language: str = "Python") -> dict:
         use_docker = (not FORCE_LOCAL_SANDBOX) and (await check_docker())
+        lang = language.lower()
+
+        ext = ".py"
+        if "javascript" in lang or "js" in lang:
+            ext = ".js"
+        elif "c++" in lang or "cpp" in lang:
+            ext = ".cpp"
+
+        filename = f"solution{ext}"
+
         with tempfile.TemporaryDirectory() as tmpdir:
             code_path = Path(tmpdir) / filename
-            code_path.write_text(code)
+            code_path.write_text(code, encoding="utf-8")
 
             if use_docker:
-                cmd = [
-                    "docker", "run", "--rm",
-                    "--network", "none",          # No internet access
-                    "--memory", "256m",           # Memory cap
-                    "--cpus", "1.0",              # CPU cap
-                    "--pids-limit", "64",         # Prevent fork bombs
-                    "-v", f"{tmpdir}:/workspace:ro",  # Read-only mount
-                    "-w", "/workspace",
-                    self.DOCKER_IMAGE,
-                    "python", filename
-                ]
+                if ext == ".js":
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", "-v", f"{tmpdir}:/workspace:ro", "-w", "/workspace", "node:20-alpine", "node", filename]
+                elif ext == ".cpp":
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "gcc:latest", "sh", "-c", f"g++ -O2 {filename} -o solution && ./solution"]
+                else:
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", "-v", f"{tmpdir}:/workspace:ro", "-w", "/workspace", self.DOCKER_IMAGE, "python", filename]
                 return await self._run_subprocess(cmd)
             else:
-                # Fallback to local python execution
-                cmd = [sys.executable, filename]
+                # Local fallback execution
+                if ext == ".js":
+                    node_bin = shutil.which("node") or "node"
+                    cmd = [node_bin, filename]
+                elif ext == ".cpp":
+                    gpp_bin = shutil.which("g++") or "g++"
+                    exe_file = "solution.exe" if sys.platform == "win32" else "./solution"
+                    cmd = [gpp_bin, "-O2", filename, "-o", "solution"]
+                    build_res = await self._run_subprocess(cmd, cwd=tmpdir)
+                    if not build_res["success"]:
+                        build_res["stderr"] = "[WARNING: Running in local fallback mode]\n" + build_res["stderr"]
+                        return build_res
+                    cmd = [str(Path(tmpdir) / exe_file)]
+                else:
+                    cmd = [sys.executable, filename]
+
                 res = await self._run_subprocess(cmd, cwd=tmpdir)
                 res["stderr"] = "[WARNING: Running in local fallback mode without Docker sandbox]\n" + res["stderr"]
                 return res
 
-    async def run_tests(self, code: str, test_code: str) -> dict:
-        """
-        Run pytest against the generated code inside Docker.
-        Falls back to local execution if Docker is not available.
-        Both files are written to a temp folder and run.
-        """
+    async def run_tests(self, code: str, test_code: str, language: str = "Python") -> dict:
         use_docker = (not FORCE_LOCAL_SANDBOX) and (await check_docker())
+        lang = language.lower()
+
+        ext = ".py"
+        test_ext = ".py"
+        if "javascript" in lang or "js" in lang:
+            ext = ".js"
+            test_ext = ".test.js"
+        elif "c++" in lang or "cpp" in lang:
+            ext = ".cpp"
+            test_ext = "_test.cpp"
+
         with tempfile.TemporaryDirectory() as tmpdir:
-            (Path(tmpdir) / "solution.py").write_text(code)
-            (Path(tmpdir) / "test_solution.py").write_text(test_code)
+            (Path(tmpdir) / f"solution{ext}").write_text(code, encoding="utf-8")
+            (Path(tmpdir) / f"test_solution{test_ext}").write_text(test_code, encoding="utf-8")
 
             if use_docker:
-                # Install pytest then run tests inside Docker container
-                cmd = [
-                    "docker", "run", "--rm",
-                    "--network", "none",
-                    "--memory", "512m",
-                    "--cpus", "1.0",
-                    "--pids-limit", "128",
-                    "-v", f"{tmpdir}:/workspace",
-                    "-w", "/workspace",
-                    self.DOCKER_IMAGE,
-                    "sh", "-c",
-                    "pip install pytest -q 2>/dev/null && pytest test_solution.py -v --tb=short 2>&1"
-                ]
+                if ext == ".js":
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "node:20-alpine", "node", "--test", f"test_solution{test_ext}"]
+                elif ext == ".cpp":
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "gcc:latest", "sh", "-c", f"g++ -O2 solution.cpp test_solution{test_ext} -o test_runner && ./test_runner"]
+                else:
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", self.DOCKER_IMAGE, "sh", "-c", "pip install pytest -q 2>/dev/null && pytest test_solution.py -v --tb=short 2>&1"]
                 return await self._run_subprocess(cmd, timeout=60)
             else:
-                # Fallback to local pytest execution using sys.executable
-                cmd = [sys.executable, "-m", "pytest", "test_solution.py", "-v", "--tb=short"]
+                # Local fallback test execution
+                if ext == ".js":
+                    node_bin = shutil.which("node") or "node"
+                    cmd = [node_bin, "--test", f"test_solution{test_ext}"]
+                elif ext == ".cpp":
+                    gpp_bin = shutil.which("g++") or "g++"
+                    exe_file = "test_runner.exe" if sys.platform == "win32" else "./test_runner"
+                    compile_cmd = [gpp_bin, "-O2", f"solution{ext}", f"test_solution{test_ext}", "-o", "test_runner"]
+                    compile_res = await self._run_subprocess(compile_cmd, cwd=tmpdir)
+                    if not compile_res["success"]:
+                        compile_res["stderr"] = "[WARNING: Running in local fallback mode]\nCompilation Error:\n" + compile_res["stderr"]
+                        return compile_res
+                    cmd = [str(Path(tmpdir) / exe_file)]
+                else:
+                    cmd = [sys.executable, "-m", "pytest", "test_solution.py", "-v", "--tb=short"]
+
                 res = await self._run_subprocess(cmd, timeout=60, cwd=tmpdir)
                 res["stderr"] = "[WARNING: Running in local fallback mode without Docker sandbox]\n" + res["stderr"]
                 return res
@@ -155,7 +172,7 @@ class ExecutionSandbox:
         except FileNotFoundError:
             return {
                 "stdout": "",
-                "stderr": "Docker not found. Make sure Docker is installed and running.",
+                "stderr": "Execution binary not found.",
                 "exit_code": -1,
                 "success": False,
                 "timed_out": False,

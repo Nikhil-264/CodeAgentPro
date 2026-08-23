@@ -18,10 +18,13 @@ except ImportError:
 
 # ── Request / Response models ─────────────────────────────────────────────────
 
+import os
+
 class GenerateRequest(BaseModel):
     task: str
     language: str = "Python"
     framework: str = "standard library"
+    provider: str = "ollama"
     model: str = "deepseek-coder:6.7b"
     skip_tests: bool = False
     skip_refactor: bool = False
@@ -30,6 +33,7 @@ class GenerateRequest(BaseModel):
 class QuickGenerateRequest(BaseModel):
     task: str
     language: str = "Python"
+    provider: str = "ollama"
     model: str = "deepseek-coder:6.7b"
 
 
@@ -37,13 +41,37 @@ class QuickGenerateRequest(BaseModel):
 
 @router.get("/models")
 async def list_models():
-    """Return all locally available Ollama models."""
+    """Return available models and API key config status for all providers."""
     client = OllamaClient()
-    available = await client.is_available()
-    if not available:
-        return {"available": False, "models": [], "error": "Ollama is not running"}
-    models = await client.list_models()
-    return {"available": True, "models": models}
+    ollama_ok = await client.is_available()
+    ollama_models = await client.list_models() if ollama_ok else []
+
+    groq_key = os.getenv("GROQ_API_KEY", "").strip()
+    gemini_key = (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or "").strip()
+
+    return {
+        "ollama": {
+            "available": ollama_ok,
+            "models": ollama_models,
+        },
+        "groq": {
+            "configured": bool(groq_key),
+            "models": [
+                "llama-3.3-70b-versatile",
+                "llama3-70b-8192",
+                "mixtral-8x7b-32768",
+                "gemma2-9b-it",
+            ]
+        },
+        "gemini": {
+            "configured": bool(gemini_key),
+            "models": [
+                "gemini-3.7-flash",
+                "gemini-3.6-flash",
+                "gemini-2.5-flash",
+            ]
+        }
+    }
 
 
 @router.post("/generate/stream")
@@ -54,7 +82,8 @@ async def generate_stream(req: GenerateRequest):
 
     The frontend subscribes to this and updates the UI in real time.
     """
-    pipeline = AgentPipeline(model=req.model)
+    full_model = f"{req.provider}:{req.model}" if req.provider else req.model
+    pipeline = AgentPipeline(model=full_model)
 
     async def event_stream():
         async for event in pipeline.run(

@@ -1,12 +1,12 @@
 services:
   backend:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile.backend
     ports:
       - "8000:8000"
     volumes:
-      - ../backend:/app
+      - ./backend:/app
     environment:
       - OLLAMA_HOST=host.docker.internal   # Points to Ollama on host machine
     extra_hosts:
@@ -15,7 +15,7 @@ services:
 
   frontend:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile.frontend
     ports:
       - "3000:3000"
