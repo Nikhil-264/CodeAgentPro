@@ -66,9 +66,9 @@ async def list_models():
         "gemini": {
             "configured": bool(gemini_key),
             "models": [
-                "gemini-3.7-flash",
+                "gemini-3-pro",
                 "gemini-3.6-flash",
-                "gemini-2.5-flash",
+                "gemini-3.7-pro-preview",
             ]
         }
     }
