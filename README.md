@@ -1,6 +1,6 @@
 # CodeAgent Pro 🤖
 
-An agentic AI coding assistant with a self-repair loop — generates code, tests it, debugs itself, and refactors until it works. Now supporting **Python**, **JavaScript**, and **C++**, with **Ollama**, **Groq**, and **Google Gemini** LLM providers.
+An agentic AI coding assistant with a self-repair loop — generates code, tests it, debugs itself, and refactors until it works. Supporting **Python**, **JavaScript**, and **C++**, with **Ollama**, **Groq**, and **Google Gemini** LLM providers.
 
 ---
 
@@ -9,27 +9,27 @@ An agentic AI coding assistant with a self-repair loop — generates code, tests
 ```
 User Task
    ↓
-RAG Context Fetch    → Retrieves relevant docs, codebase, past fixes
+RAG Context Fetch    → Retrieves relevant docs, codebase, past error fixes (Cached Singleton)
    ↓
 Planner Agent        → Breaks task into sub-tasks
    ↓
-Code Generator       → Writes the code (via Ollama / Groq / Gemini)
+Code Generator       → Writes code (Ollama / Groq / Gemini) [3-Attempt Retry]
    ↓
 Execution Sandbox    → Runs Python / JS / C++ code in Docker (isolated)
    ↓
-Test Generator       → Writes test suites (Pytest / Node test / C++ assert)
+Test Generator       → Writes test suites (Pytest / Node test / C++ assert) [3-Attempt Retry]
    ↓
-┌─ Debug Loop ────────────────────────────────────────────┐
-│  Run Tests → Fail → RAG Error Memory → Debugger → Repeat│
-│             Pass → exit loop                            │
-└─────────────────────────────────────────────────────────┘
+┌─ Debug Loop ────────────────────────────────────────────────────────┐
+│  Run Tests → Fail → RAG Error Memory → Debugger Agent → Re-Test Loop │
+│             Pass → Exit loop to Refactor                            │
+└─────────────────────────────────────────────────────────────────────┘
    ↓
-Refactor Agent       → Cleans up working code
+Refactor Agent       → Cleans up working code (Enforces target language)
    ↓
 Final Code ✅
 ```
 
-All agents are Orchestrated via **LangGraph** as a compiled state graph with conditional edges.
+All agents are orchestrated via **LangGraph** as a compiled state graph with conditional abort edges and deterministic state routing.
 
 ---
 
@@ -85,32 +85,65 @@ npm run dev
 
 UI: http://localhost:3000
 
-### 6. Or run everything with Docker
-```bash
-docker compose up --build
-```
-
-Backend → `:8000` | Frontend → `:3000`
+### 6. Or launch automatically on Windows
+Double-click [start_project.bat](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/start_project.bat) to set up dependencies and launch both backend and frontend servers in separate terminal windows.
 
 ---
 
-## RAG Setup (optional but recommended)
+## RAG Architecture (Retrieval-Augmented Generation)
 
-Seed the docs store with built-in FastAPI / Pytest / Python snippets:
+CodeAgent Pro features a multi-collection **ChromaDB** vector store powered by `sentence-transformers` (`all-MiniLM-L6-v2`):
+
+1. **Docs Store (`docs`)**: Contains built-in documentation for FastAPI, Pytest, Python idioms, and DSA algorithms.
+2. **Codebase Store (`codebase`)**: Indexes local project directories for context-aware coding.
+3. **Error Memory Store (`error_memory`)**: Records successful `(broken_code, error_stacktrace, fixed_code)` pairs to prevent repeating past debugging errors.
+
+### RAG Latency Optimization
+- **Singleton Model Cache**: The embedding model is cached globally (`_EMBEDDING_MODEL` singleton in `base_store.py`).
+- **Startup Pre-Warming**: Backend server pre-warms the model on boot (`main.py`), reducing RAG retrieval time from ~36s down to **<0.05s**.
+
+### RAG API Commands:
+Seed built-in documentation:
 ```bash
 curl -X POST http://localhost:8000/api/rag/seed-docs
 ```
 
-Index your own project into the codebase store:
+Index a local directory:
 ```bash
 curl -X POST http://localhost:8000/api/rag/index-project \
   -H "Content-Type: application/json" \
   -d '{"directory": "./backend"}'
 ```
 
-Check what's stored:
+Check stored stats:
 ```bash
 curl http://localhost:8000/api/rag/stats
+```
+
+Clear all vector stores:
+```bash
+curl -X POST http://localhost:8000/api/rag/clear
+```
+
+---
+
+## Offline Evaluation Pipeline (`eval/`)
+
+CodeAgent Pro includes an offline benchmarking framework to evaluate LLM coding capabilities, compute Pass@1/Pass@k rates, measure latencies, and detect regressions.
+
+### Run Evaluation CLI:
+```bash
+# Test run on 1 task using Groq
+python -m eval.run_eval --provider groq --model openai/gpt-oss-20b --subset 1
+
+# Full 18-task benchmark across Python, JS, and C++ using Gemini
+python -m eval.run_eval --provider gemini --model gemini-3.6-flash
+
+# Run benchmark using local Ollama model
+python -m eval.run_eval --provider ollama --model deepseek-coder:6.7b
+
+# Compare candidate run against baseline to flag quality regressions
+python -m eval.run_eval --provider groq --model openai/gpt-oss-20b --compare eval/runs/baseline.json
 ```
 
 ---
@@ -134,10 +167,10 @@ curl -X POST http://localhost:8000/api/generate/quick \
 curl -X POST http://localhost:8000/api/generate/stream \
   -H "Content-Type: application/json" \
   -d '{
-    "task": "Build a REST API for a todo list using FastAPI",
-    "language": "Python",
+    "task": "Write a binary search implementation with comprehensive edge case handling in C++",
+    "language": "C++",
     "provider": "groq",
-    "model": "llama-3.3-70b-versatile"
+    "model": "openai/gpt-oss-20b"
   }'
 ```
 
@@ -147,51 +180,68 @@ curl -X POST http://localhost:8000/api/generate/stream \
   "task": "your task description",
   "language": "Python",
   "framework": "standard library",
-  "provider": "ollama",
-  "model": "deepseek-coder:6.7b",
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
   "skip_tests": false,
   "skip_refactor": false
 }
 ```
 
 *Supported Languages:* `Python`, `JavaScript`, `C++`  
-*Supported Providers:* `ollama`, `groq`, `gemini`
+*Supported Groq Models:* `openai/gpt-oss-20b`, `qwen/qwen3.6-27b`, `openai/gpt-oss-120b`  
+*Supported Gemini Models:* `gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.5-flash`  
 
 ---
 
 ## Project Structure
 
 ```
-codeagent-pro/
-├── README.md
+CodeAgentPro/
+├── README.md                     # Project overview and documentation
+├── troubleshooting_and_fixes.md  # Detailed technical log of 18+ solved issues
+├── start_project.bat             # Automated Windows launcher script
 ├── docker-compose.yml            # Root docker compose orchestration
-├── start_project.bat             # Automated Windows launcher
+├── .github/
+│   └── workflows/
+│       └── eval.yml              # GitHub Actions CI evaluation workflow
 ├── backend/
-│   ├── main.py                   # FastAPI entry point
-│   ├── requirements.txt
+│   ├── main.py                   # FastAPI entry point & startup pre-warming
+│   ├── requirements.txt          # Python dependencies
+│   ├── .env                      # API keys (Groq, Gemini, Ollama)
 │   ├── .env.example              # API key configuration template
 │   ├── agents/
-│   │   ├── planner.py            # Task decomposition
-│   │   ├── code_generator.py     # Multi-provider LLM code generation
-│   │   ├── test_generator.py     # Pytest / JS / C++ test generator
-│   │   ├── debugger.py           # Self-repair loop core
-│   │   └── refactor.py           # Code quality pass
+│   │   ├── planner.py            # Task decomposition agent
+│   │   ├── code_generator.py     # Code generation agent (3-attempt retry)
+│   │   ├── test_generator.py     # Test suite generator agent (3-attempt retry)
+│   │   ├── debugger.py           # Self-repair debug agent with stacktrace analysis
+│   │   └── refactor.py           # Code refactoring agent (enforces target language)
 │   ├── core/
-│   │   ├── llm_client.py         # Multi-provider client (Ollama, Groq, Gemini)
-│   │   ├── prompts.py            # Centralized prompt templates
-│   │   ├── sandbox.py            # Multi-language Docker execution engine
-│   │   ├── state.py              # LangGraph shared state
-│   │   ├── nodes.py              # LangGraph node functions
-│   │   ├── graph.py              # LangGraph compiled state graph
-│   │   └── pipeline.py           # Thin SSE stream adapter
+│   │   ├── llm_client.py         # Multi-provider async LLM client with 429 retries
+│   │   ├── prompts.py            # Centralized prompt templates with strict language guards
+│   │   ├── sandbox.py            # Subprocess/Docker execution engine (Python, JS, C++)
+│   │   ├── state.py              # LangGraph shared state schema
+│   │   ├── nodes.py              # LangGraph node functions with error handling
+│   │   ├── graph.py              # LangGraph compiled state graph with abort edges
+│   │   └── pipeline.py           # SSE stream adapter
 │   ├── api/
-│   │   └── routes.py             # FastAPI endpoints + RAG routes
-│   └── rag/
-│       ├── base_store.py         # ChromaDB base class
-│       ├── codebase_store.py     # Project file indexing
-│       ├── docs_store.py         # Library documentation
-│       ├── error_memory_store.py # Past bug→fix memory
-│       └── rag_manager.py        # Single RAG interface
+│   │   └── routes.py             # FastAPI streaming, quick generate & RAG routes
+│   ├── rag/
+│   │   ├── base_store.py         # ChromaDB base wrapper with singleton model cache
+│   │   ├── codebase_store.py     # Project directory vector indexing
+│   │   ├── docs_store.py         # Seeded library documentation store
+│   │   ├── error_memory_store.py # Historical error-fix vector memory
+│   │   └── rag_manager.py        # Centralized RAG manager
+│   ├── data/
+│   │   └── chromadb/             # Persistent ChromaDB vector database storage
+│   └── eval/                     # Offline Evaluation Pipeline
+│       ├── dataset/
+│       │   └── tasks.yaml        # 18 benchmark tasks with held-out tests
+│       ├── harness.py            # Async evaluation harness
+│       ├── metrics.py            # Pass@1, Pass@k, latency, and error metrics
+│       ├── report.py            # Timestamped JSON run reporter
+│       ├── compare.py           # Baseline diff comparator for regression detection
+│       ├── run_eval.py           # CLI entry point (python -m eval.run_eval)
+│       └── runs/                 # Output directory for evaluation run logs
 ├── frontend/
 │   ├── index.html
 │   ├── package.json
@@ -199,12 +249,12 @@ codeagent-pro/
 │   └── src/
 │       ├── main.jsx
 │       ├── App.jsx               # Main layout + Provider/Model/Language panel
-│       ├── index.css             # Design system + all styles
-│       ├── useAgent.js           # SSE streaming hook + state
+│       ├── index.css             # Design system + HSL color theme
+│       ├── useAgent.js           # SSE streaming hook & state manager
 │       └── components/
-│           ├── PipelineBar.jsx   # Animated agent progress bar
-│           ├── TerminalLog.jsx   # Real-time event stream
-│           └── CodeViewer.jsx    # Syntax-highlighted code + copy
+│           ├── PipelineBar.jsx   # Animated LangGraph step progress bar
+│           ├── TerminalLog.jsx   # Real-time event stream terminal
+│           └── CodeViewer.jsx    # Token-isolation syntax highlighter
 └── docker/
     ├── docker-compose.yml
     ├── Dockerfile.backend
@@ -225,12 +275,13 @@ codeagent-pro/
 | 5 | RAG — codebase + docs + error memory | ✅ Done |
 | 6 | LangGraph multi-agent orchestration | ✅ Done |
 | 7 | React frontend with real-time terminal & progress bar | ✅ Done |
+| 8 | Offline evaluation pipeline & CI benchmark workflow | ✅ Done |
 
 ---
 
 ## Key Design Decisions
 
-- **Why LangGraph?** The debug loop is a cycle in the state graph, not a `for` loop in code. Conditional edges make agent routing explicit and inspectable.
-- **Why Multi-Provider (Ollama, Groq, Gemini)?** Choose local privacy with Ollama (`deepseek-coder:6.7b`), ultra-fast cloud inference with Groq (`openai/gpt-oss-20b`, `qwen/qwen3.6-27b`, `openai/gpt-oss-120b`), or Google Gemini (`gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.5-flash`).
-- **Why Multi-Language Docker Sandboxing?** Executes Python (`python:3.11-slim`), JavaScript (`node:20-alpine`), and C++ (`gcc:latest`) inside isolated containers with `--network none`, memory limits, and CPU caps.
-- **Why ChromaDB RAG?** Persistent local vector store. Error memory grows with every run, making the debugger smarter over time.
+- **Why LangGraph?** The self-repair loop is a cycle in the state graph. Conditional abort edges prevent runaway execution if generation fails.
+- **Why Multi-Provider (Ollama, Groq, Gemini)?** Offers total privacy with local Ollama (`deepseek-coder:6.7b`), or high-speed cloud inference with Groq (`openai/gpt-oss-20b`, `qwen/qwen3.6-27b`) or Google Gemini (`gemini-3.6-flash`, `gemini-3.7-flash`).
+- **Why Multi-Language Sandboxing?** Executes Python (`pytest`), JavaScript (`node --test`), and C++ (`gcc`) inside isolated containers with strict resource caps.
+- **Why ChromaDB RAG?** Persistent local vector store with singleton embedding caching. Error memory grows with every successful fix, preventing the debugger from repeating mistakes.
