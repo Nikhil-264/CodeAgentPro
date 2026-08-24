@@ -231,6 +231,6 @@ codeagent-pro/
 ## Key Design Decisions
 
 - **Why LangGraph?** The debug loop is a cycle in the state graph, not a `for` loop in code. Conditional edges make agent routing explicit and inspectable.
-- **Why Multi-Provider (Ollama, Groq, Gemini)?** Choose local privacy with Ollama (`deepseek-coder:6.7b`), ultra-fast cloud inference with Groq (`llama-3.3-70b-versatile`), or Google Gemini (`gemini-2.5-flash`).
+- **Why Multi-Provider (Ollama, Groq, Gemini)?** Choose local privacy with Ollama (`deepseek-coder:6.7b`), ultra-fast cloud inference with Groq (`openai/gpt-oss-20b`, `qwen/qwen3.6-27b`, `openai/gpt-oss-120b`), or Google Gemini (`gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.5-flash`).
 - **Why Multi-Language Docker Sandboxing?** Executes Python (`python:3.11-slim`), JavaScript (`node:20-alpine`), and C++ (`gcc:latest`) inside isolated containers with `--network none`, memory limits, and CPU caps.
 - **Why ChromaDB RAG?** Persistent local vector store. Error memory grows with every run, making the debugger smarter over time.

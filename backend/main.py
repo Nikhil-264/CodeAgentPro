@@ -22,6 +22,15 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api")
 
+@app.on_event("startup")
+async def startup_event():
+    try:
+        from rag.base_store import _get_embedding_model
+        _get_embedding_model()
+    except Exception:
+        pass
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "version": "1.0.0"}

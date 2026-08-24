@@ -18,6 +18,17 @@ def get_chroma_client() -> chromadb.PersistentClient:
     )
 
 
+_EMBEDDING_MODEL = None
+
+
+def _get_embedding_model():
+    global _EMBEDDING_MODEL
+    if _EMBEDDING_MODEL is None:
+        from sentence_transformers import SentenceTransformer
+        _EMBEDDING_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+    return _EMBEDDING_MODEL
+
+
 class BaseVectorStore:
     COLLECTION_NAME: str = "base"
 
@@ -38,11 +49,9 @@ class BaseVectorStore:
 
     def _embed(self, texts: list[str]) -> list[list[float]]:
         """
-        Local embedding via sentence-transformers.
-        Uses a small, fast model — no API calls needed.
+        Local embedding via sentence-transformers (cached model instance).
         """
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer("all-MiniLM-L6-v2")  # 80MB, fast
+        model = _get_embedding_model()
         return model.encode(texts, show_progress_bar=False).tolist()
 
     def add(self, documents: list[str], metadatas: list[dict], ids: list[str]):

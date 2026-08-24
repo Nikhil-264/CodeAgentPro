@@ -1,0 +1,433 @@
+# CodeAgentPro Seed Evaluation Dataset
+# 18 tasks across Python, JavaScript, and C++ (2 Easy, 2 Medium, 2 Hard per language)
+
+- id: py-easy-01
+  task: "Write a Python function `two_sum(nums: list[int], target: int) -> list[int]` that returns indices of the two numbers such that they add up to target. Each input has exactly one solution. Return indices in ascending order."
+  language: "Python"
+  framework: "standard library"
+  difficulty: "easy"
+  acceptance_test: |
+    import pytest
+    from solution import two_sum
+
+    def test_two_sum_basic():
+        assert two_sum([2, 7, 11, 15], 9) == [0, 1]
+
+    def test_two_sum_unordered():
+        assert two_sum([3, 2, 4], 6) == [1, 2]
+
+    def test_two_sum_same_value():
+        assert two_sum([3, 3], 6) == [0, 1]
+
+- id: py-easy-02
+  task: "Write a Python function `is_palindrome(s: str) -> bool` that returns True if a given string is a palindrome, considering only alphanumeric characters and ignoring cases."
+  language: "Python"
+  framework: "standard library"
+  difficulty: "easy"
+  acceptance_test: |
+    import pytest
+    from solution import is_palindrome
+
+    def test_palindrome_sentence():
+        assert is_palindrome("A man, a plan, a canal: Panama") is True
+
+    def test_palindrome_false():
+        assert is_palindrome("race a car") is False
+
+    def test_palindrome_empty():
+        assert is_palindrome(" ") is True
+
+- id: py-med-01
+  task: "Write a Python class `LRUCache(capacity: int)` implementing an LRU cache with `get(key: int) -> int` (returns value if present, else -1) and `put(key: int, value: int)` in O(1) average time complexity."
+  language: "Python"
+  framework: "standard library"
+  difficulty: "medium"
+  acceptance_test: |
+    import pytest
+    from solution import LRUCache
+
+    def test_lru_operations():
+        cache = LRUCache(2)
+        cache.put(1, 1)
+        cache.put(2, 2)
+        assert cache.get(1) == 1
+        cache.put(3, 3) # evicts key 2
+        assert cache.get(2) == -1
+        cache.put(4, 4) # evicts key 1
+        assert cache.get(1) == -1
+        assert cache.get(3) == 3
+        assert cache.get(4) == 4
+
+- id: py-med-02
+  task: "Write a Python function `merge_intervals(intervals: list[list[int]]) -> list[list[int]]` that merges all overlapping intervals and returns an array of non-overlapping intervals sorted by start time."
+  language: "Python"
+  framework: "standard library"
+  difficulty: "medium"
+  acceptance_test: |
+    import pytest
+    from solution import merge_intervals
+
+    def test_merge_overlapping():
+        assert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]
+
+    def test_merge_touching():
+        assert merge_intervals([[1,4],[4,5]]) == [[1,5]]
+
+    def test_merge_unsorted():
+        assert merge_intervals([[1,4],[0,4]]) == [[0,4]]
+
+- id: py-hard-01
+  task: "Write a Python function `calculate(s: str) -> int` that evaluates a string mathematical expression containing non-negative integers, '+', '-', '*', '/', and parentheses '(', ')' with standard operator precedence. Integer division should truncate toward zero."
+  language: "Python"
+  framework: "standard library"
+  difficulty: "hard"
+  acceptance_test: |
+    import pytest
+    from solution import calculate
+
+    def test_basic_arithmetic():
+        assert calculate("1 + 1") == 2
+        assert calculate(" 2-1 + 2 ") == 3
+
+    def test_parentheses_and_precedence():
+        assert calculate("(1+(4+5+2)-3)+(6+8)") == 23
+        assert calculate("2*(3+4)-5/2") == 12
+
+- id: py-hard-02
+  task: "Write a Python function `topological_sort(num_nodes: int, edges: list[list[int]]) -> list[int]` that returns a valid topological ordering of nodes (0 to num_nodes - 1) for a Directed Acyclic Graph specified by directed edges [u, v]. If a cycle exists, return an empty list `[]`."
+  language: "Python"
+  framework: "standard library"
+  difficulty: "hard"
+  acceptance_test: |
+    import pytest
+    from solution import topological_sort
+
+    def test_valid_dag():
+        res = topological_sort(4, [[1,0],[2,0],[3,1],[3,2]])
+        pos = {node: i for i, node in enumerate(res)}
+        assert len(res) == 4
+        assert pos[3] < pos[1] and pos[3] < pos[2]
+        assert pos[1] < pos[0] and pos[2] < pos[0]
+
+    def test_cycle_detection():
+        assert topological_sort(2, [[0,1],[1,0]]) == []
+
+- id: js-easy-01
+  task: "Write a JavaScript function `flattenArray(arr, depth = 1)` that flattens a nested array up to the specified depth. Do not use Array.prototype.flat."
+  language: "JavaScript"
+  framework: "node"
+  difficulty: "easy"
+  acceptance_test: |
+    const test = require('node:test');
+    const assert = require('node:assert');
+    const fs = require('fs');
+    const vm = require('vm');
+
+    const code = fs.readFileSync('./solution.js', 'utf8');
+    const context = { console, module: { exports: {} }, exports: {} };
+    vm.createContext(context);
+    vm.runInContext(code, context);
+    const fn = context.flattenArray || context.module.exports.flattenArray || context.exports.flattenArray;
+
+    test('flatten array depth 1', () => {
+        assert.deepStrictEqual(fn([1, [2, [3, [4]], 5]], 1), [1, 2, [3, [4]], 5]);
+    });
+
+    test('flatten array depth 2', () => {
+        assert.deepStrictEqual(fn([1, [2, [3, [4]], 5]], 2), [1, 2, 3, [4], 5]);
+    });
+
+- id: js-easy-02
+  task: "Write a JavaScript function `toTitleCase(str)` that converts a string to title case, capitalizing the first letter of each word except minor words: 'a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'in', 'on', 'at', 'to', 'from', 'by' unless it is the first word."
+  language: "JavaScript"
+  framework: "node"
+  difficulty: "easy"
+  acceptance_test: |
+    const test = require('node:test');
+    const assert = require('node:assert');
+    const fs = require('fs');
+    const vm = require('vm');
+
+    const code = fs.readFileSync('./solution.js', 'utf8');
+    const context = { console, module: { exports: {} }, exports: {} };
+    vm.createContext(context);
+    vm.runInContext(code, context);
+    const fn = context.toTitleCase || context.module.exports.toTitleCase || context.exports.toTitleCase;
+
+    test('title case conversion', () => {
+        assert.strictEqual(fn('the lord of the rings'), 'The Lord of the Rings');
+        assert.strictEqual(fn('a tale of two cities'), 'A Tale of Two Cities');
+    });
+
+- id: js-med-01
+  task: "Write a JavaScript function `deepClone(obj)` that creates a deep copy of an object, handling nested objects, arrays, Date objects, RegExp objects, and primitives."
+  language: "JavaScript"
+  framework: "node"
+  difficulty: "medium"
+  acceptance_test: |
+    const test = require('node:test');
+    const assert = require('node:assert');
+    const fs = require('fs');
+    const vm = require('vm');
+
+    const code = fs.readFileSync('./solution.js', 'utf8');
+    const context = { console, module: { exports: {} }, exports: {}, Date, RegExp };
+    vm.createContext(context);
+    vm.runInContext(code, context);
+    const fn = context.deepClone || context.module.exports.deepClone || context.exports.deepClone;
+
+    test('deep clone objects and dates', () => {
+        const d = new Date(1700000000000);
+        const original = { a: 1, b: { c: [2, 3] }, d: d };
+        const copy = fn(original);
+        assert.notStrictEqual(copy, original);
+        assert.notStrictEqual(copy.b, original.b);
+        assert.deepStrictEqual(copy.b.c, [2, 3]);
+        assert.strictEqual(copy.d.getTime(), d.getTime());
+    });
+
+- id: js-med-02
+  task: "Write a JavaScript function `debounce(fn, delay)` that returns a debounced version of the function `fn` which delays its execution until after `delay` milliseconds have elapsed since the last call."
+  language: "JavaScript"
+  framework: "node"
+  difficulty: "medium"
+  acceptance_test: |
+    const test = require('node:test');
+    const assert = require('node:assert');
+    const fs = require('fs');
+    const vm = require('vm');
+
+    const code = fs.readFileSync('./solution.js', 'utf8');
+    const context = { console, module: { exports: {} }, exports: {}, setTimeout, clearTimeout };
+    vm.createContext(context);
+    vm.runInContext(code, context);
+    const fn = context.debounce || context.module.exports.debounce || context.exports.debounce;
+
+    test('debounce delays execution', (t, done) => {
+        let count = 0;
+        const debounced = fn(() => { count++; }, 50);
+        debounced();
+        debounced();
+        debounced();
+        assert.strictEqual(count, 0);
+        setTimeout(() => {
+            assert.strictEqual(count, 1);
+            done();
+        }, 100);
+    });
+
+- id: js-hard-01
+  task: "Write a JavaScript `EventEmitter` class supporting `on(event, listener)`, `off(event, listener)`, `once(event, listener)`, and `emit(event, ...args)`. Return an unsubscribe function from `on` and `once`."
+  language: "JavaScript"
+  framework: "node"
+  difficulty: "hard"
+  acceptance_test: |
+    const test = require('node:test');
+    const assert = require('node:assert');
+    const fs = require('fs');
+    const vm = require('vm');
+
+    const code = fs.readFileSync('./solution.js', 'utf8');
+    const context = { console, module: { exports: {} }, exports: {} };
+    vm.createContext(context);
+    vm.runInContext(code, context);
+    const EE = context.EventEmitter || context.module.exports.EventEmitter || context.exports.EventEmitter;
+
+    test('event emitter on, emit, once, off', () => {
+        const emitter = new EE();
+        let sum = 0;
+        const add = (val) => { sum += val; };
+        emitter.on('add', add);
+        emitter.emit('add', 5);
+        assert.strictEqual(sum, 5);
+
+        let onceCount = 0;
+        emitter.once('single', () => { onceCount++; });
+        emitter.emit('single');
+        emitter.emit('single');
+        assert.strictEqual(onceCount, 1);
+
+        emitter.off('add', add);
+        emitter.emit('add', 10);
+        assert.strictEqual(sum, 5);
+    });
+
+- id: js-hard-02
+  task: "Write a JavaScript class `AsyncTaskQueue(concurrency)` that executes async tasks added via `push(taskFn)` returning a Promise that resolves with taskFn's result, executing at most `concurrency` tasks simultaneously."
+  language: "JavaScript"
+  framework: "node"
+  difficulty: "hard"
+  acceptance_test: |
+    const test = require('node:test');
+    const assert = require('node:assert');
+    const fs = require('fs');
+    const vm = require('vm');
+
+    const code = fs.readFileSync('./solution.js', 'utf8');
+    const context = { console, module: { exports: {} }, exports: {}, Promise, setTimeout };
+    vm.createContext(context);
+    vm.runInContext(code, context);
+    const Queue = context.AsyncTaskQueue || context.module.exports.AsyncTaskQueue || context.exports.AsyncTaskQueue;
+
+    test('async task queue concurrency limit', async () => {
+        const q = new Queue(2);
+        let active = 0;
+        let maxActive = 0;
+        const makeTask = (val, ms) => () => new Promise(resolve => {
+            active++;
+            if (active > maxActive) maxActive = active;
+            setTimeout(() => {
+                active--;
+                resolve(val);
+            }, ms);
+        });
+
+        const p1 = q.push(makeTask(1, 50));
+        const p2 = q.push(makeTask(2, 50));
+        const p3 = q.push(makeTask(3, 50));
+        const results = await Promise.all([p1, p2, p3]);
+        assert.deepStrictEqual(results, [1, 2, 3]);
+        assert.strictEqual(maxActive, 2);
+    });
+
+- id: cpp-easy-01
+  task: "Write a C++ function `std::string reverseWords(std::string s)` that reverses the order of words in a string. Words are separated by one or more spaces. Return words separated by a single space with no leading or trailing spaces. Do not include a main function."
+  language: "C++"
+  framework: "standard library"
+  difficulty: "easy"
+  acceptance_test: |
+    #include <iostream>
+    #include <cassert>
+    #include <string>
+
+    std::string reverseWords(std::string s);
+
+    int main() {
+        assert(reverseWords("the sky is blue") == "blue is sky the");
+        assert(reverseWords("  hello world  ") == "world hello");
+        assert(reverseWords("a good   example") == "example good a");
+        std::cout << "All reverseWords tests passed!\n";
+        return 0;
+    }
+
+- id: cpp-easy-02
+  task: "Write a C++ function `bool isAnagram(std::string s, std::string t)` that returns true if t is an anagram of s, and false otherwise. Do not include a main function."
+  language: "C++"
+  framework: "standard library"
+  difficulty: "easy"
+  acceptance_test: |
+    #include <iostream>
+    #include <cassert>
+    #include <string>
+
+    bool isAnagram(std::string s, std::string t);
+
+    int main() {
+        assert(isAnagram("anagram", "nagaram") == true);
+        assert(isAnagram("rat", "car") == false);
+        std::cout << "All isAnagram tests passed!\n";
+        return 0;
+    }
+
+- id: cpp-med-01
+  task: "Write a C++ class `MinStack` supporting `push(int val)`, `pop()`, `top() -> int`, and `getMin() -> int`, each operating in O(1) time complexity. Do not include a main function."
+  language: "C++"
+  framework: "standard library"
+  difficulty: "medium"
+  acceptance_test: |
+    #include <iostream>
+    #include <cassert>
+    #include <stack>
+
+    class MinStack {
+    public:
+        MinStack();
+        void push(int val);
+        void pop();
+        int top();
+        int getMin();
+    };
+
+    int main() {
+        MinStack s;
+        s.push(-2);
+        s.push(0);
+        s.push(-3);
+        assert(s.getMin() == -3);
+        s.pop();
+        assert(s.top() == 0);
+        assert(s.getMin() == -2);
+        std::cout << "All MinStack tests passed!\n";
+        return 0;
+    }
+
+- id: cpp-med-02
+  task: "Write a C++ function `std::vector<int> productExceptSelf(const std::vector<int>& nums)` that returns an array where output[i] is equal to the product of all elements of nums except nums[i], in O(N) time without using division. Do not include a main function."
+  language: "C++"
+  framework: "standard library"
+  difficulty: "medium"
+  acceptance_test: |
+    #include <iostream>
+    #include <cassert>
+    #include <vector>
+
+    std::vector<int> productExceptSelf(const std::vector<int>& nums);
+
+    int main() {
+        std::vector<int> input = {1, 2, 3, 4};
+        std::vector<int> expected = {24, 12, 8, 6};
+        assert(productExceptSelf(input) == expected);
+
+        std::vector<int> input2 = {-1, 1, 0, -3, 3};
+        std::vector<int> expected2 = {0, 0, 9, 0, 0};
+        assert(productExceptSelf(input2) == expected2);
+        std::cout << "All productExceptSelf tests passed!\n";
+        return 0;
+    }
+
+- id: cpp-hard-01
+  task: "Write a C++ function `int lengthOfLIS(const std::vector<int>& nums)` that returns the length of the longest strictly increasing subsequence in O(N log N) time complexity. Do not include a main function."
+  language: "C++"
+  framework: "standard library"
+  difficulty: "hard"
+  acceptance_test: |
+    #include <iostream>
+    #include <cassert>
+    #include <vector>
+
+    int lengthOfLIS(const std::vector<int>& nums);
+
+    int main() {
+        std::vector<int> nums1 = {10, 9, 2, 5, 3, 7, 101, 18};
+        assert(lengthOfLIS(nums1) == 4); // [2, 3, 7, 101]
+
+        std::vector<int> nums2 = {0, 1, 0, 3, 2, 3};
+        assert(lengthOfLIS(nums2) == 4);
+
+        std::vector<int> nums3 = {7, 7, 7, 7};
+        assert(lengthOfLIS(nums3) == 1);
+        std::cout << "All lengthOfLIS tests passed!\n";
+        return 0;
+    }
+
+- id: cpp-hard-02
+  task: "Write a C++ function `int shortestPath(int numNodes, const std::vector<std::vector<int>>& edges, int src, int dst)` that computes the shortest path distance from src to dst using Dijkstra's algorithm. Each edge is given as [u, v, weight]. If dst is unreachable, return -1. Do not include a main function."
+  language: "C++"
+  framework: "standard library"
+  difficulty: "hard"
+  acceptance_test: |
+    #include <iostream>
+    #include <cassert>
+    #include <vector>
+
+    int shortestPath(int numNodes, const std::vector<std::vector<int>>& edges, int src, int dst);
+
+    int main() {
+        std::vector<std::vector<int>> edges = {
+            {0, 1, 4}, {0, 2, 1}, {2, 1, 2}, {1, 3, 1}, {2, 3, 5}
+        };
+        assert(shortestPath(4, edges, 0, 3) == 4); // 0->2 (1), 2->1 (2), 1->3 (1) = 4
+        assert(shortestPath(4, edges, 3, 0) == -1);
+        std::cout << "All shortestPath tests passed!\n";
+        return 0;
+    }

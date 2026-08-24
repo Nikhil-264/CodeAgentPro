@@ -1,7 +1,11 @@
 import os
 import json
+import asyncio
 import httpx
 from typing import AsyncGenerator
+from dotenv import load_dotenv
+
+load_dotenv()
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
@@ -30,7 +34,7 @@ class OllamaClient:
             # Auto-detect by model name pattern
             if "gemini" in self.model.lower():
                 self.provider = "gemini"
-            elif any(k in self.model.lower() for k in ["groq", "llama-3.3", "mixtral", "gemma2-9b"]):
+            elif any(k in self.model.lower() for k in ["groq", "gpt-oss", "qwen", "llama-3.3", "mixtral", "gemma2-9b"]):
                 self.provider = "groq"
             else:
                 self.provider = "ollama"
@@ -89,11 +93,16 @@ class OllamaClient:
             "temperature": 0.2,
             "max_tokens": 4096,
         }
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.post(url, headers=headers, json=payload)
-            response.raise_for_status()
-            res_json = response.json()
-            return res_json["choices"][0]["message"]["content"]
+        
+        for attempt in range(4):
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.post(url, headers=headers, json=payload)
+                if response.status_code == 429 and attempt < 3:
+                    await asyncio.sleep(3 * (attempt + 1))
+                    continue
+                response.raise_for_status()
+                res_json = response.json()
+                return res_json["choices"][0]["message"]["content"]
 
     # ── Gemini Provider ───────────────────────────────────────────────────────
     async def _generate_gemini(self, prompt: str, system: str = "") -> str:
@@ -119,15 +128,22 @@ class OllamaClient:
                 "maxOutputTokens": 4096,
             }
         }
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.post(url, json=payload)
-            response.raise_for_status()
-            res_json = response.json()
-            candidates = res_json.get("candidates", [])
-            if not candidates:
-                raise ValueError("Gemini returned empty response.")
-            parts = candidates[0].get("content", {}).get("parts", [])
-            return parts[0].get("text", "") if parts else ""
+        for attempt in range(4):
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.post(url, json=payload)
+                if response.status_code == 429 and attempt < 3:
+                    await asyncio.sleep(3 * (attempt + 1))
+                    continue
+                response.raise_for_status()
+                res_json = response.json()
+                candidates = res_json.get("candidates", [])
+                if not candidates:
+                    raise ValueError(f"Gemini returned empty candidates: {res_json}")
+                candidate = candidates[0]
+                content = candidate.get("content", {})
+                parts = content.get("parts", [])
+                text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                return text
 
     # ── Helpers ───────────────────────────────────────────────────────────────
     async def list_models(self) -> list[str]:

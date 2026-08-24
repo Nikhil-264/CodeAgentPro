@@ -1,0 +1,401 @@
+{
+  "metadata": {
+    "timestamp": "2026-08-24T23:25:42.566492",
+    "git_commit": "3070a2e",
+    "model": "openai/gpt-oss-20b",
+    "provider": "groq",
+    "max_debug_attempts": 5,
+    "dataset_path": "C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\backend\\eval\\dataset\\tasks.yaml"
+  },
+  "summary": {
+    "total_tasks": 1,
+    "pass_at_1": 0.0,
+    "pass_at_k": 0.0,
+    "give_up_rate": 1.0,
+    "avg_debug_attempts_repair": 5.0,
+    "avg_latency_per_task": 150.377,
+    "avg_node_latencies": {
+      "rag_context": 36.439,
+      "planner": 2.465,
+      "code_generator": 1.425,
+      "sandbox_execute": 0.364,
+      "test_generator": 0.439,
+      "run_tests": 6.271,
+      "debugger": 102.973,
+      "finalise": 0.0
+    },
+    "sandbox_failure_rate": 0.0,
+    "by_language": {
+      "Python": {
+        "count": 1,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 150.377
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "count": 1,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 150.377
+      }
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "py-easy-01",
+      "language": "Python",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 5,
+      "hit_max_debug": true,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 150.377,
+      "node_latencies": {
+        "rag_context": 36.439,
+        "planner": 2.465,
+        "code_generator": 1.425,
+        "sandbox_execute": 0.364,
+        "test_generator": 0.439,
+        "run_tests": 6.271,
+        "debugger": 102.973,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": null,
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpuml9sozt\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmpuml9sozt\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import two_sum\r\nE   ImportError: cannot import name 'two_sum' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpuml9sozt\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.19s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1058
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "success",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Create project structure",
+                "description": "Initialize the project directory with necessary files: two_sum.py, tests/test_two_sum.py, and a README.md.",
+                "files": [
+                  "two_sum.py",
+                  "tests/test_two_sum.py",
+                  "README.md"
+                ]
+              },
+              {
+                "id": 2,
+                "title": "Add function skeleton",
+                "description": "Define the two_sum function signature in two_sum.py with a placeholder pass statement.",
+                "files": [
+                  "two_sum.py"
+                ]
+              },
+              {
+                "id": 3,
+                "title": "Implement two_sum algorithm",
+                "description": "Implement the hash map based solution to find indices that sum to target, ensuring O(n) time.",
+                "files": [
+                  "two_sum.py"
+                ]
+              },
+              {
+                "id": 4,
+                "title": "Add type hints and docstring",
+                "description": "Add proper type hints, a detailed docstring, and ensure the function returns indices in ascending order.",
+                "files": [
+                  "two_sum.py"
+                ]
+              },
+              {
+                "id": 5,
+                "title": "Write unit tests",
+                "description": "Create comprehensive unit tests in tests/test_two_sum.py covering typical cases, edge cases, and verifying ascending order.",
+                "files": [
+                  "tests/test_two_sum.py"
+                ]
+              },
+              {
+                "id": 6,
+                "title": "Run tests and verify",
+                "description": "Execute the test suite to confirm correctness and adjust implementation if necessary.",
+                "files": [
+                  "tests/test_two_sum.py"
+                ]
+              },
+              {
+                "id": 7,
+                "title": "Document usage",
+                "description": "Add a README.md with a brief description, usage example, and test instructions.",
+                "files": [
+                  "README.md"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "success",
+          "data": {
+            "code_length": 1656,
+            "code": "def two_sum(nums: list[int], target: int) -> list[int]:\n    \"\"\"\n    Find indices of two numbers in ``nums`` that sum to ``target``.\n\n    Parameters\n    ----------\n    nums : list[int]\n        List of integers. Must contain at least two elements.\n    target : int\n        The target sum.\n\n    Returns\n    -------\n    list[int]\n        A list of two indices [i, j] such that nums[i] + nums[j] == target.\n        The indices are returned in ascending order.\n\n    Raises\n    ------\n    TypeError\n        If ``nums`` is not a list or ``target`` is not an int.\n    ValueError\n        If ``nums`` contains fewer than two elements, or if no solution exists.\n    \"\"\"\n    # Basic type checks\n    if not isinstance(nums, list):\n        raise TypeError(\"nums must be a list\")\n    if not isinstance(target, int):\n        raise TypeError(\"target must be an integer\")\n    if len(nums) < 2:\n        raise ValueError(\"nums must contain at least two elements\")\n\n    # Map to store number -> index\n    seen = {}\n    for idx, num in enumerate(nums):\n        # Validate each element is an int\n        if not isinstance(num, int):\n            raise TypeError(f\"Element at index {idx} is not an integer\")\n        complement = target - num\n        if complement in seen:\n            # Return sorted indices\n            return sorted([seen[complement], idx])\n        seen[num] = idx\n\n    # If we exit the loop, no solution was found\n    raise ValueError(\"No two numbers sum to the target\")\n\n# Example usage\nif __name__ == \"__main__\":\n    example_nums = [2, 7, 11, 15]\n    example_target = 9\n    print(f\"Indices for target {example_target}: {two_sum(example_nums, example_target)}\")"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "initial_run"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "success",
+          "data": {
+            "stdout": "Indices for target 9: [0, 1]\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false
+          }
+        },
+        {
+          "step": "TestGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "TestGenerator",
+          "status": "failed",
+          "data": {
+            "test_code": "",
+            "agent": "TestGenerator",
+            "success": false,
+            "error": "name 'asyncio' is not defined"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 0
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpe0qhmlu5\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items\r\n\r\n============================ no tests ran in 0.01s ============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 5,
+            "success": false,
+            "timed_out": false,
+            "attempt": 0
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpfibipaj5\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items\r\n\r\n============================ no tests ran in 0.01s ============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 5,
+            "success": false,
+            "timed_out": false,
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpcjcmzksm\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items\r\n\r\n============================ no tests ran in 0.01s ============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 5,
+            "success": false,
+            "timed_out": false,
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmp4qnm93fd\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items\r\n\r\n============================ no tests ran in 0.01s ============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 5,
+            "success": false,
+            "timed_out": false,
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpkxo6nwmc\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items\r\n\r\n============================ no tests ran in 0.01s ============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 5,
+            "success": false,
+            "timed_out": false,
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmps05lbwkt\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items\r\n\r\n============================ no tests ran in 0.01s ============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 5,
+            "success": false,
+            "timed_out": false,
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    }
+  ]
+}

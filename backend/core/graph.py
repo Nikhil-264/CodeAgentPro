@@ -35,8 +35,8 @@ MAX_DEBUG_ATTEMPTS = 5
 # ── Conditional edge functions ────────────────────────────────────────────────
 
 def should_abort(state: PipelineState) -> str:
-    """After code generation: abort if LLM failed."""
-    if state.get("error"):
+    """After code generation: abort if LLM failed or code is empty."""
+    if state.get("error") or not state.get("current_code"):
         return "finalise"
     return "sandbox_execute"
 
@@ -46,6 +46,13 @@ def should_skip_tests(state: PipelineState) -> str:
     if state.get("skip_tests"):
         return "finalise"
     return "test_generator"
+
+
+def should_abort_after_test_gen(state: PipelineState) -> str:
+    """After test generator: abort if test generation failed or test_code is empty."""
+    if state.get("error") or not state.get("test_code"):
+        return "finalise"
+    return "run_tests"
 
 
 def after_tests_run(state: PipelineState) -> str:
@@ -82,7 +89,6 @@ def build_graph() -> StateGraph:
     g.set_entry_point("rag_context")
     g.add_edge("rag_context",     "planner")
     g.add_edge("planner",         "code_generator")
-    g.add_edge("test_generator",  "run_tests")
     g.add_edge("debugger",        "run_tests")   # Debug loop back
     g.add_edge("refactor",        "finalise")
     g.add_edge("finalise",        END)
@@ -97,6 +103,11 @@ def build_graph() -> StateGraph:
         "sandbox_execute",
         should_skip_tests,
         {"test_generator": "test_generator", "finalise": "finalise"},
+    )
+    g.add_conditional_edges(
+        "test_generator",
+        should_abort_after_test_gen,
+        {"run_tests": "run_tests", "finalise": "finalise"},
     )
     g.add_conditional_edges(
         "run_tests",

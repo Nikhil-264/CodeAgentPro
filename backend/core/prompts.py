@@ -15,9 +15,11 @@ TASK: {task}
 LANGUAGE: {language}
 FRAMEWORK: {framework}
 
+CRITICAL: You MUST write the code strictly in {language}. Do NOT write code in Python unless LANGUAGE is Python.
+
 Requirements:
 - Include proper error handling
-- Add docstrings/comments
+- Add docstrings/comments appropriate for {language}
 - Make it runnable immediately
 
 Return only the code."""
@@ -60,25 +62,27 @@ Rules:
 - Return the complete fixed file, not just the changed lines
 - Fix ALL issues visible in the error, not just the first one
 - Do not change working parts of the code
+- Maintain the original programming language
 
 Return only the fixed code."""
 
 
 REFACTOR_SYSTEM = """You are a senior engineer focused on code quality.
-Your job: make working code cleaner, more readable, and more Pythonic.
+Your job: make working code cleaner, more readable, and idiomatic for the target language.
 Return ONLY the refactored code."""
 
-REFACTOR_PROMPT = """Refactor this working code for quality and readability:
+REFACTOR_PROMPT = """Refactor this working {language} code for quality and readability:
 
 CODE:
 {code}
 
 Focus on:
-- PEP8 compliance
+- Idiomatic style and best practices for {language}
 - Remove dead code
-- Improve naming
-- Add missing type hints
+- Improve variable and function naming
+- Add missing type annotations/hints if applicable to {language}
 - Simplify complex logic
+- DO NOT convert the code to another programming language! Stay strictly in {language}.
 
 Return only the refactored code."""
 

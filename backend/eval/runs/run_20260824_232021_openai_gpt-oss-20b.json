@@ -1,0 +1,173 @@
+{
+  "metadata": {
+    "timestamp": "2026-08-24T23:20:21.670638",
+    "git_commit": "3070a2e",
+    "model": "openai/gpt-oss-20b",
+    "provider": "groq",
+    "max_debug_attempts": 5,
+    "dataset_path": "C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\backend\\eval\\dataset\\tasks.yaml"
+  },
+  "summary": {
+    "total_tasks": 1,
+    "pass_at_1": 0.0,
+    "pass_at_k": 0.0,
+    "give_up_rate": 0.0,
+    "avg_debug_attempts_repair": 0.0,
+    "avg_latency_per_task": 38.497,
+    "avg_node_latencies": {
+      "rag_context": 36.391,
+      "planner": 1.684,
+      "code_generator": 0.421,
+      "finalise": 0.0
+    },
+    "sandbox_failure_rate": 0.0,
+    "by_language": {
+      "Python": {
+        "count": 1,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 38.497
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "count": 1,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 38.497
+      }
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "py-easy-01",
+      "language": "Python",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 38.497,
+      "node_latencies": {
+        "rag_context": 36.391,
+        "planner": 1.684,
+        "code_generator": 0.421,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429",
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmph795pcn5\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmph795pcn5\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import two_sum\r\nE   ImportError: cannot import name 'two_sum' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmph795pcn5\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.19s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1058
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "success",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Create project structure",
+                "description": "Set up a clean Python project directory with a virtual environment and necessary configuration files.",
+                "files": [
+                  "requirements.txt",
+                  "setup.py",
+                  ".gitignore"
+                ]
+              },
+              {
+                "id": 2,
+                "title": "Create two_sum module",
+                "description": "Create a Python module `two_sum.py` and add the function signature `two_sum(nums: list[int], target: int) -> list[int]`.",
+                "files": [
+                  "two_sum.py"
+                ]
+              },
+              {
+                "id": 3,
+                "title": "Implement two_sum logic",
+                "description": "Implement the two-sum algorithm using a hash map to find the pair of indices that sum to the target. Ensure indices are returned in ascending order.",
+                "files": [
+                  "two_sum.py"
+                ]
+              },
+              {
+                "id": 4,
+                "title": "Add type hints and docstring",
+                "description": "Add comprehensive type hints and a detailed docstring explaining the function\u2019s purpose, parameters, return value, and example usage.",
+                "files": [
+                  "two_sum.py"
+                ]
+              },
+              {
+                "id": 5,
+                "title": "Write unit tests",
+                "description": "Create a test file `test_two_sum.py` with multiple test cases covering normal scenarios, edge cases, and the requirement that exactly one solution exists.",
+                "files": [
+                  "test_two_sum.py"
+                ]
+              },
+              {
+                "id": 6,
+                "title": "Run tests and verify",
+                "description": "Execute the test suite using a test runner (e.g., pytest) and confirm all tests pass.",
+                "files": [
+                  "test_two_sum.py"
+                ]
+              },
+              {
+                "id": 7,
+                "title": "Document usage in README",
+                "description": "Add a section to `README.md` that explains how to import and use the `two_sum` function, including example code snippets.",
+                "files": [
+                  "README.md"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "Python",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429"
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    }
+  ]
+}

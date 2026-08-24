@@ -58,9 +58,19 @@ class DebuggerAgent:
             }
 
     def _clean_code(self, raw: str) -> str:
-        lines = raw.strip().splitlines()
+        if not raw:
+            return ""
+        import re
+        text = raw.strip()
+        pattern = r"```(?:[a-zA-Z0-9_+#-]+)?\n([\s\S]*?)\n```"
+        matches = list(re.finditer(pattern, text))
+        if matches:
+            largest = max(matches, key=lambda m: len(m.group(1)))
+            return largest.group(1).strip()
+
+        lines = text.splitlines()
         if lines and lines[0].startswith("```"):
             lines = lines[1:]
         if lines and lines[-1].strip() == "```":
             lines = lines[:-1]
-        return "\n".join(lines)
+        return "\n".join(lines).strip()

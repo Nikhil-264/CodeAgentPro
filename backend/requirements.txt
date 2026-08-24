@@ -8,3 +8,4 @@ sentence-transformers==3.0.0
 langchain==0.2.0
 pytest==8.2.2
 python-dotenv==1.0.1
+pyyaml==6.0.1

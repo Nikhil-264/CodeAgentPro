@@ -90,7 +90,7 @@ export function useAgent() {
       }
       if (step === 'Pipeline' && status === 'success' && data?.final_code) {
         patch.currentCode = data.final_code
-        patch.testCode = data.test_code || ''
+        patch.testCode = data.test_code || s.testCode || ''
         patch.status = 'success'
       }
 

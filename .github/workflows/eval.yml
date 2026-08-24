@@ -1,0 +1,108 @@
+name: Agent Evaluation Pipeline
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/eval.yml'
+  workflow_dispatch:
+
+jobs:
+  agent-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install System Dependencies (GCC/G++)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential g++
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt pyyaml
+
+      - name: Run Agent Evaluation Subset (5 tasks)
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          FORCE_LOCAL_SANDBOX: "false"
+        run: |
+          python -m eval.run_eval --provider groq --model openai/gpt-oss-20b --subset 5 --output-dir backend/eval/runs
+
+      - name: Find Eval Report File
+        id: report_file
+        run: |
+          REPORT_FILE=$(ls -t backend/eval/runs/run_*.json | head -n 1)
+          echo "path=$REPORT_FILE" >> $GITHUB_OUTPUT
+
+      - name: Comment PR with Eval Results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const reportPath = '${{ steps.report_file.outputs.path }}';
+            if (!fs.existsSync(reportPath)) {
+              console.log("No report file found at", reportPath);
+              return;
+            }
+            const data = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            const summary = data.summary;
+
+            const body = `### 🤖 CodeAgentPro Agent Evaluation Results
+            **Model:** \`${data.metadata.model}\` (${data.metadata.provider}) | **Commit:** \`${data.metadata.git_commit}\`
+
+            | Metric | Result |
+            | :--- | :--- |
+            | **Tasks Evaluated** | \`${summary.total_tasks}\` |
+            | **Pass@1 Rate** | \`${(summary.pass_at_1 * 100).toFixed(1)}%\` |
+            | **Pass@k Rate** | \`${(summary.pass_at_k * 100).toFixed(1)}%\` |
+            | **Give-Up Rate** | \`${(summary.give_up_rate * 100).toFixed(1)}%\` |
+            | **Avg Debug Iterations** | \`${summary.avg_debug_attempts_repair}\` |
+            | **Avg Task Latency** | \`${summary.avg_latency_per_task}s\` |
+            | **Sandbox Error Rate** | \`${(summary.sandbox_failure_rate * 100).toFixed(1)}%\` |
+
+            <details>
+            <summary><b>Node Latency Breakdown</b></summary>
+
+            \`\`\`json
+            ${JSON.stringify(summary.avg_node_latencies, null, 2)}
+            \`\`\`
+            </details>
+            `;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const botComment = comments.find(c => c.body.includes('### 🤖 CodeAgentPro Agent Evaluation Results'));
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }

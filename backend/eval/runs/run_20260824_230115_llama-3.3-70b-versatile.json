@@ -1,0 +1,289 @@
+{
+  "metadata": {
+    "timestamp": "2026-08-24T23:01:15.853916",
+    "git_commit": "3070a2e",
+    "model": "llama-3.3-70b-versatile",
+    "provider": "groq",
+    "max_debug_attempts": 5,
+    "dataset_path": "C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\backend\\eval\\dataset\\tasks.yaml"
+  },
+  "summary": {
+    "total_tasks": 3,
+    "pass_at_1": 0.0,
+    "pass_at_k": 0.0,
+    "give_up_rate": 0.0,
+    "avg_debug_attempts_repair": 0.0,
+    "avg_latency_per_task": 38.45,
+    "avg_node_latencies": {
+      "rag_context": 38.448,
+      "planner": 0.0,
+      "code_generator": 0.001,
+      "finalise": 0.0
+    },
+    "sandbox_failure_rate": 0.0,
+    "by_language": {
+      "Python": {
+        "count": 3,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 38.45
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "count": 2,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 43.904
+      },
+      "medium": {
+        "count": 1,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 27.541
+      }
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "py-easy-01",
+      "language": "Python",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 60.352,
+      "node_latencies": {
+        "rag_context": 60.35,
+        "planner": 0.0,
+        "code_generator": 0.001,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "GROQ_API_KEY is missing from environment / .env file.",
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpxuslc7o2\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmpxuslc7o2\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import two_sum\r\nE   ImportError: cannot import name 'two_sum' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpxuslc7o2\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.31s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1058
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a Python function `two_sum(nums: list[int], target: int) -> list[int]` that returns indices of the two numbers such that they add up to target. Each input has exactly one solution. Return indices in ascending order.",
+                "description": "Write a Python function `two_sum(nums: list[int], target: int) -> list[int]` that returns indices of the two numbers such that they add up to target. Each input has exactly one solution. Return indices in ascending order.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "Python",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "GROQ_API_KEY is missing from environment / .env file."
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "py-easy-02",
+      "language": "Python",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 27.456,
+      "node_latencies": {
+        "rag_context": 27.455,
+        "planner": 0.0,
+        "code_generator": 0.001,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "GROQ_API_KEY is missing from environment / .env file.",
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmp_dxkn31g\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmp_dxkn31g\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import is_palindrome\r\nE   ImportError: cannot import name 'is_palindrome' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmp_dxkn31g\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.21s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 973
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a Python function `is_palindrome(s: str) -> bool` that returns True if a given string is a palindrome, considering only alphanumeric characters and ignoring cases.",
+                "description": "Write a Python function `is_palindrome(s: str) -> bool` that returns True if a given string is a palindrome, considering only alphanumeric characters and ignoring cases.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "Python",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "GROQ_API_KEY is missing from environment / .env file."
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "py-med-01",
+      "language": "Python",
+      "difficulty": "medium",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 27.541,
+      "node_latencies": {
+        "rag_context": 27.539,
+        "planner": 0.0,
+        "code_generator": 0.001,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "GROQ_API_KEY is missing from environment / .env file.",
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpchjz2yrt\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmpchjz2yrt\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import LRUCache\r\nE   ImportError: cannot import name 'LRUCache' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpchjz2yrt\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.23s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 754
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a Python class `LRUCache(capacity: int)` implementing an LRU cache with `get(key: int) -> int` (returns value if present, else -1) and `put(key: int, value: int)` in O(1) average time complexity.",
+                "description": "Write a Python class `LRUCache(capacity: int)` implementing an LRU cache with `get(key: int) -> int` (returns value if present, else -1) and `put(key: int, value: int)` in O(1) average time complexity.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "Python",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "GROQ_API_KEY is missing from environment / .env file."
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    }
+  ]
+}

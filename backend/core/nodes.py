@@ -106,10 +106,12 @@ async def node_test_generator(state: PipelineState) -> dict:
     result = await TestGeneratorAgent(_llm(state)).run(
         state["current_code"], state["task"], language=state.get("language", "Python")
     )
-    if not result["success"]:
+    if not result["success"] or not result.get("test_code"):
+        err = result.get("error") or "Test generation failed"
         return {
             "test_code": "",
-            "events": events + [_event("TestGenerator", "failed", result)],
+            "error": err,
+            "events": events + [_event("TestGenerator", "failed", {**result, "error": err})],
         }
     events = events + [_event("TestGenerator", "success", {
         "test_code": result["test_code"]
@@ -127,17 +129,23 @@ async def node_run_tests(state: PipelineState) -> dict:
         result = await ExecutionSandbox().run_tests(
             state["current_code"], state["test_code"], language=state.get("language", "Python")
         )
-        status = "success" if result["success"] else "warning"
+        tests_passed = result["success"]
+        # 0 tests collected or no tests ran is NOT a pass
+        stdout_low = result.get("stdout", "").lower()
+        if "collected 0 items" in stdout_low or "no tests ran" in stdout_low:
+            tests_passed = False
+
+        status = "success" if tests_passed else "warning"
         events = events + [_event("Sandbox", status, {**result, "attempt": attempt})]
 
         error_out = result["stdout"] + "\n" + result["stderr"]
 
-        if result["success"]:
+        if tests_passed:
             events = events + [_event("DebugLoop", "success",
                                        {"attempts": attempt, "message": "All tests passed!"})]
 
         return {
-            "tests_passed": result["success"],
+            "tests_passed": tests_passed,
             "last_error": error_out,
             "exec_stdout": result["stdout"],
             "exec_stderr": result["stderr"],
@@ -195,7 +203,9 @@ async def node_debugger(state: PipelineState) -> dict:
 
 async def node_refactor(state: PipelineState) -> dict:
     events = state["events"] + [_event("Refactor", "running")]
-    result = await RefactorAgent(_llm(state)).run(state["current_code"])
+    result = await RefactorAgent(_llm(state)).run(
+        state["current_code"], language=state.get("language", "Python")
+    )
     events = events + [_event("Refactor",
                                "success" if result["success"] else "warning",
                                {"code": result["refactored_code"], "refactored_code": result["refactored_code"]})]
