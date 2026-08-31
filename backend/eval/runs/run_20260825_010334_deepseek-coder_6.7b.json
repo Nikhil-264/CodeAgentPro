@@ -1,0 +1,2033 @@
+{
+  "metadata": {
+    "timestamp": "2026-08-25T01:03:34.556655",
+    "git_commit": "dd0ae8f",
+    "model": "deepseek-coder:6.7b",
+    "provider": "ollama",
+    "max_debug_attempts": 5,
+    "dataset_path": "C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\backend\\eval\\dataset\\tasks.yaml"
+  },
+  "summary": {
+    "total_tasks": 18,
+    "pass_at_1": 0.0,
+    "pass_at_k": 0.0,
+    "give_up_rate": 0.1111,
+    "avg_debug_attempts_repair": 5.0,
+    "avg_latency_per_task": 51.25,
+    "avg_node_latencies": {
+      "rag_context": 1.455,
+      "planner": 7.728,
+      "code_generator": 18.982,
+      "sandbox_execute": 0.573,
+      "test_generator": 52.046,
+      "run_tests": 10.218,
+      "debugger": 144.927,
+      "finalise": 0.0
+    },
+    "sandbox_failure_rate": 0.0,
+    "by_language": {
+      "Python": {
+        "count": 6,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 120.436
+      },
+      "JavaScript": {
+        "count": 6,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 16.665
+      },
+      "C++": {
+        "count": 6,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 16.65
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "count": 6,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 107.13
+      },
+      "medium": {
+        "count": 6,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 29.984
+      },
+      "hard": {
+        "count": 6,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 16.637
+      }
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "py-easy-01",
+      "language": "Python",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 5,
+      "hit_max_debug": true,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 348.723,
+      "node_latencies": {
+        "rag_context": 25.04,
+        "planner": 37.08,
+        "code_generator": 45.437,
+        "sandbox_execute": 0.921,
+        "test_generator": 63.442,
+        "run_tests": 9.115,
+        "debugger": 167.686,
+        "finalise": 0.001
+      },
+      "sandbox_error": false,
+      "fatal_error": null,
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmp85zafcky\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmp85zafcky\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import two_sum\r\nE   ImportError: cannot import name 'two_sum' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmp85zafcky\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.26s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "def test_two_sum():\n    assert ts.two_sum([2,7,11,5], 9) == [0, 1]\n    assert ts.two_sum([3,2,4], 6) == [1, 2]",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1058
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "success",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Define function two_sum(nums: list[int], target: int) -> list[int]",
+                "description": "Create a Python function that takes in a list of integers and a target integer. The function should return the indices of two numbers from the input list such that they add up to the target.",
+                "files": [
+                  "main.py"
+                ]
+              },
+              {
+                "id": 2,
+                "title": "Implement logic for finding two sum",
+                "description": "The function should iterate over the list of numbers and use a dictionary or hash map to store each number and its index. For each number in the list, it calculates the complement needed to reach the target (target - current_number). If this complement is found in the dictionary, we have found our pair of numbers.",
+                "files": [
+                  "main.py"
+                ]
+              },
+              {
+                "id": 3,
+                "title": "Return indices in ascending order",
+                "description": "After finding a pair of numbers that add up to the target, return their indices in ascending order.",
+                "files": [
+                  "main.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "success",
+          "data": {
+            "code_length": 792,
+            "code": "def two_sum(nums, target):\n    \"\"\"\n    This function takes a list of integers and a target integer as input \n    and returns indices of two numbers such that they add up to the target.\n    \n    Args:\n        nums (list[int]): List of integers\n        target (int): Target sum\n        \n    Returns:\n        list[int]: Indices of two numbers in ascending order\n    \"\"\"\n    seen = {}  # Dictionary to store the number and its index\n    \n    for i, n in enumerate(nums):  \n        if target - n in seen:  # If the complementary number is found in seen dictionary\n            return [seen[target - n], i]  # Return indices of two numbers\n        seen[n] = i  # Add current number and its index to seen dictionary\n    \n    raise ValueError(\"No solution exists\")  # Raise error if no solution exists"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "initial_run"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "success",
+          "data": {
+            "stdout": "",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false
+          }
+        },
+        {
+          "step": "TestGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "TestGenerator",
+          "status": "success",
+          "data": {
+            "test_code": "#include <cassert>\n#include \"solution.h\"\n\nint main() {\n    std::vector<int> nums = {2, 7, 11, 5};\n    assert((twoSum(nums, 9) == std::make({0, 1})));\n    \n    nums = {3, 2, 4};\n    assert((twoSum(nums, 6) == std::make_pair<>({1, 2})));\n    \n    nums = {3, 3};\n    assert((twoSum(nums, 6) == std::make_pair<>({0, 1})));\n    \n    try {\n        nums = {2, 7, 11, 5};\n        twoSum(nums, 20);\n        assert(false); // Expected ValueError\n    } catch (const std::exception& e) {\n        // Expected error\n    }\n    \n    std::cout << \"All tests passed!\" << std::endl;\n    return 0;\n}"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 0
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmp34vor_bg\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmp34vor_bg\\test_solution.py\", line 4\r\nE       int main() {\r\nE           ^^^^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.29s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 0
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpzw65hu6p\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmpzw65hu6p\\test_solution.py\", line 4\r\nE       int main() {\r\nE           ^^^^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.31s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpwxdkbasd\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmpwxdkbasd\\test_solution.py\", line 4\r\nE       int main() {\r\nE           ^^^^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.30s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmppvh0r57l\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmppvh0r57l\\test_solution.py\", line 4\r\nE       int main() {\r\nE           ^^^^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.31s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmp__nxsqx8\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmp__nxsqx8\\test_solution.py\", line 4\r\nE       int main() {\r\nE           ^^^^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.34s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpobq0wsgc\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmpobq0wsgc\\test_solution.py\", line 4\r\nE       int main() {\r\nE           ^^^^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.30s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "def test_two_sum():\n    assert ts.two_sum([2,7,11,5], 9) == [0, 1]\n    assert ts.two_sum([3,2,4], 6) == [1, 2]",
+            "test_code": "#include <cassert>\n#include \"solution.h\"\n\nint main() {\n    std::vector<int> nums = {2, 7, 11, 5};\n    assert((twoSum(nums, 9) == std::make({0, 1})));\n    \n    nums = {3, 2, 4};\n    assert((twoSum(nums, 6) == std::make_pair<>({1, 2})));\n    \n    nums = {3, 3};\n    assert((twoSum(nums, 6) == std::make_pair<>({0, 1})));\n    \n    try {\n        nums = {2, 7, 11, 5};\n        twoSum(nums, 20);\n        assert(false); // Expected ValueError\n    } catch (const std::exception& e) {\n        // Expected error\n    }\n    \n    std::cout << \"All tests passed!\" << std::endl;\n    return 0;\n}"
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "py-easy-02",
+      "language": "Python",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 5,
+      "hit_max_debug": true,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 227.233,
+      "node_latencies": {
+        "rag_context": 0.039,
+        "planner": 26.195,
+        "code_generator": 26.635,
+        "sandbox_execute": 0.225,
+        "test_generator": 40.65,
+        "run_tests": 11.32,
+        "debugger": 122.168,
+        "finalise": 0.001
+      },
+      "sandbox_error": false,
+      "fatal_error": null,
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmp1fiskw1b\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmp1fiskw1b\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import is_palindrome\r\nsolution.py:1: in <module>\r\n    from solution import is_palindrome\r\nE   ImportError: cannot import name 'is_palindrome' from 'solution' (consider renaming 'C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\tmp1fiskw1b\\\\solution.py' if it has the same name as a library you intended to import)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.23s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "from solution import is_palindrome\n\ndef test_is_palindrome():\n    assert(is_palindrome(\"A man, a plan, a canal: Panama\"))\n    assert(not is_palindrome(\"race a car\"))",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 973
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "success",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Define the function is_palindrome(s)",
+                "description": "Create a Python function named 'is_palindrome' that takes one parameter 's'. The function should return True if s is a palindrome and False otherwise.",
+                "files": [
+                  "main.py"
+                ]
+              },
+              {
+                "id": 2,
+                "title": "Implement the logic to check for palindromes",
+                "description": "The 'is_palindrome' function should ignore cases by converting s to lowercase before checking if it is a palindrome. It should also only consider alphanumeric characters.",
+                "files": [
+                  "main.py"
+                ]
+              },
+              {
+                "id": 3,
+                "title": "Test the function with various inputs",
+                "description": "Write tests to ensure that your 'is_palindrome' function is working correctly. Consider both palindromes and non-palindromes.",
+                "files": [
+                  "test_main.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "success",
+          "data": {
+            "code_length": 316,
+            "code": "def is_palindrome(s):\n    \"\"\"Check if a string is palindrome considering alphanumeric characters and ignoring cases\"\"\"\n    \n    # Remove all non-alphanumeric characters, convert to lowercase\n    s = ''.join([c for c in s if c.isalnum()]).lower()\n    \n    # Compare the string with its reverse\n    return s == s[::-1]"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "initial_run"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "success",
+          "data": {
+            "stdout": "",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false
+          }
+        },
+        {
+          "step": "TestGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "TestGenerator",
+          "status": "success",
+          "data": {
+            "test_code": "const {is_palindrome} = require('./solution');\nconst assert = require('assert');\n\nfunction testIsPalindrome() {\n    assert.strictEqual(is_palindrome('A man, a plan, a canal: Panama'), true);\n    assert.strictEqual(is_palindrome('race a car'), false);\n    assert.strictEqual(is_palindrome(' '), true);  // Empty string is considered as palindrome.\n}\ntestIsPalindrome();"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 0
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpr0g9c90d\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmpr0g9c90d\\test_solution.py\", line 1\r\nE       const {is_palindrome} = require('./solution');\r\nE             ^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.33s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 0
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpbi7ckdln\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmpbi7ckdln\\test_solution.py\", line 1\r\nE       const {is_palindrome} = require('./solution');\r\nE             ^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.40s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 1
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpnuyh64oo\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmpnuyh64oo\\test_solution.py\", line 1\r\nE       const {is_palindrome} = require('./solution');\r\nE             ^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.39s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 2
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmps3sgyi6p\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmps3sgyi6p\\test_solution.py\", line 1\r\nE       const {is_palindrome} = require('./solution');\r\nE             ^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.30s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 3
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmp9k5_z3ph\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmp9k5_z3ph\\test_solution.py\", line 1\r\nE       const {is_palindrome} = require('./solution');\r\nE             ^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.30s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 4
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "running",
+          "data": {
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Debugger",
+          "status": "success",
+          "data": {
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "warning",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpi_b1et2o\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\python.py:508: in importtestmodule\r\n    mod = import_path(\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\pathlib.py:596: in import_path\r\n    importlib.import_module(module_name)\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n<frozen importlib._bootstrap>:1387: in _gcd_import\r\n    ???\r\n<frozen importlib._bootstrap>:1360: in _find_and_load\r\n    ???\r\n<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked\r\n    ???\r\n<frozen importlib._bootstrap>:935: in _load_unlocked\r\n    ???\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:179: in exec_module\r\n    source_stat, co = _rewrite_test(fn, self.config)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nC:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Lib\\site-packages\\_pytest\\assertion\\rewrite.py:348: in _rewrite_test\r\n    tree = ast.parse(source, filename=strfn)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n..\\..\\Programs\\Python\\Python313\\Lib\\ast.py:50: in parse\r\n    return compile(source, filename, mode, flags,\r\nE     File \"C:\\Users\\HP\\AppData\\Local\\Temp\\tmpi_b1et2o\\test_solution.py\", line 1\r\nE       const {is_palindrome} = require('./solution');\r\nE             ^\r\nE   SyntaxError: invalid syntax\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.31s ===============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 2,
+            "success": false,
+            "timed_out": false,
+            "attempt": 5
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "from solution import is_palindrome\n\ndef test_is_palindrome():\n    assert(is_palindrome(\"A man, a plan, a canal: Panama\"))\n    assert(not is_palindrome(\"race a car\"))",
+            "test_code": "const {is_palindrome} = require('./solution');\nconst assert = require('assert');\n\nfunction testIsPalindrome() {\n    assert.strictEqual(is_palindrome('A man, a plan, a canal: Panama'), true);\n    assert.strictEqual(is_palindrome('race a car'), false);\n    assert.strictEqual(is_palindrome(' '), true);  // Empty string is considered as palindrome.\n}\ntestIsPalindrome();"
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "py-med-01",
+      "language": "Python",
+      "difficulty": "medium",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 96.298,
+      "node_latencies": {
+        "rag_context": 0.05,
+        "planner": 35.56,
+        "code_generator": 60.687,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpdst1qad2\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmpdst1qad2\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import LRUCache\r\nE   ImportError: cannot import name 'LRUCache' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpdst1qad2\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.25s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 754
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "success",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Design LRUCache class structure",
+                "description": "Define the basic structure of the LRUCache class including its constructor and methods.",
+                "files": [
+                  "lru_cache.py"
+                ]
+              },
+              {
+                "id": 2,
+                "title": "Implement get method",
+                "description": "The get method should return the value for a given key if it exists in the cache. If not, return -1.",
+                "files": [
+                  "lru_cache.py"
+                ]
+              },
+              {
+                "id": 3,
+                "title": "Implement put method",
+                "description": "The put method should insert a key-value pair into the cache. If the capacity is reached, remove the least recently used item.",
+                "files": [
+                  "lru_cache.py"
+                ]
+              },
+              {
+                "id": 4,
+                "title": "Implement doubly linked list",
+                "description": "The put and get methods will require a doubly linked list to keep track of the order of items in the cache.",
+                "files": [
+                  "doubly_linked_list.py"
+                ]
+              },
+              {
+                "id": 5,
+                "title": "Implement unit tests",
+                "description": "Write unit tests for all methods to ensure they work as expected.",
+                "files": [
+                  "test_lru_cache.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "Python",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "py-med-02",
+      "language": "Python",
+      "difficulty": "medium",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 17.072,
+      "node_latencies": {
+        "rag_context": 0.376,
+        "planner": 2.699,
+        "code_generator": 13.996,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpvc8bh89j\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmpvc8bh89j\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import merge_intervals\r\nE   ImportError: cannot import name 'merge_intervals' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpvc8bh89j\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.25s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1138
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a Python function `merge_intervals(intervals: list[list[int]]) -> list[list[int]]` that merges all overlapping intervals and returns an array of non-overlapping intervals sorted by start time.",
+                "description": "Write a Python function `merge_intervals(intervals: list[list[int]]) -> list[list[int]]` that merges all overlapping intervals and returns an array of non-overlapping intervals sorted by start time.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "Python",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "py-hard-01",
+      "language": "Python",
+      "difficulty": "hard",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.613,
+      "node_latencies": {
+        "rag_context": 0.058,
+        "planner": 2.682,
+        "code_generator": 13.873,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmppd416jlu\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmppd416jlu\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import calculate\r\nE   ImportError: cannot import name 'calculate' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmppd416jlu\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.22s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 970
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a Python function `calculate(s: str) -> int` that evaluates a string mathematical expression containing non-negative integers, '+', '-', '*', '/', and parentheses '(', ')' with standard operator precedence. Integer division should truncate toward zero.",
+                "description": "Write a Python function `calculate(s: str) -> int` that evaluates a string mathematical expression containing non-negative integers, '+', '-', '*', '/', and parentheses '(', ')' with standard operator precedence. Integer division should truncate toward zero.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "Python",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "py-hard-02",
+      "language": "Python",
+      "difficulty": "hard",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.675,
+      "node_latencies": {
+        "rag_context": 0.066,
+        "planner": 2.683,
+        "code_generator": 13.926,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpz24r0_vd\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmpz24r0_vd\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import topological_sort\r\nE   ImportError: cannot import name 'topological_sort' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpz24r0_vd\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.28s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1266
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a Python function `topological_sort(num_nodes: int, edges: list[list[int]]) -> list[int]` that returns a valid topological ordering of nodes (0 to num_nodes - 1) for a Directed Acyclic Graph specified by directed edges [u, v]. If a cycle exists, return an empty list `[]`.",
+                "description": "Write a Python function `topological_sort(num_nodes: int, edges: list[list[int]]) -> list[int]` that returns a valid topological ordering of nodes (0 to num_nodes - 1) for a Directed Acyclic Graph specified by directed edges [u, v]. If a cycle exists, return an empty list `[]`.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "Python",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "js-easy-01",
+      "language": "JavaScript",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.693,
+      "node_latencies": {
+        "rag_context": 0.04,
+        "planner": 2.722,
+        "code_generator": 13.931,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "TAP version 13\n# Subtest: flatten array depth 1\nnot ok 1 - flatten array depth 1\n  ---\n  duration_ms: 1.7167\n  type: 'test'\n  location: 'C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\tmpjbdt5j4l\\\\test_solution.test.js:12:1'\n  failureType: 'testCodeFailure'\n  error: 'fn is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    TestContext.<anonymous> (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpjbdt5j4l\\test_solution.test.js:13:28)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n# Subtest: flatten array depth 2\nnot ok 2 - flatten array depth 2\n  ---\n  duration_ms: 0.1553\n  type: 'test'\n  location: 'C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\tmpjbdt5j4l\\\\test_solution.test.js:16:1'\n  failureType: 'testCodeFailure'\n  error: 'fn is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    TestContext.<anonymous> (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpjbdt5j4l\\test_solution.test.js:17:28)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:744:18)\n    Test.postRun (node:internal/test_runner/test:1173:19)\n    Test.run (node:internal/test_runner/test:1101:12)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 0\n# fail 2\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 119.8377\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 772
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a JavaScript function `flattenArray(arr, depth = 1)` that flattens a nested array up to the specified depth. Do not use Array.prototype.flat.",
+                "description": "Write a JavaScript function `flattenArray(arr, depth = 1)` that flattens a nested array up to the specified depth. Do not use Array.prototype.flat.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "JavaScript",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "js-easy-02",
+      "language": "JavaScript",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.712,
+      "node_latencies": {
+        "rag_context": 0.063,
+        "planner": 2.666,
+        "code_generator": 13.983,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "TAP version 13\n# Subtest: title case conversion\nnot ok 1 - title case conversion\n  ---\n  duration_ms: 0.7568\n  type: 'test'\n  location: 'C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\tmpl3unqtkv\\\\test_solution.test.js:12:1'\n  failureType: 'testCodeFailure'\n  error: 'fn is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    TestContext.<anonymous> (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpl3unqtkv\\test_solution.test.js:13:24)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 81.7943\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 831
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a JavaScript function `toTitleCase(str)` that converts a string to title case, capitalizing the first letter of each word except minor words: 'a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'in', 'on', 'at', 'to', 'from', 'by' unless it is the first word.",
+                "description": "Write a JavaScript function `toTitleCase(str)` that converts a string to title case, capitalizing the first letter of each word except minor words: 'a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'in', 'on', 'at', 'to', 'from', 'by' unless it is the first word.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "JavaScript",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "js-med-01",
+      "language": "JavaScript",
+      "difficulty": "medium",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.64,
+      "node_latencies": {
+        "rag_context": 0.032,
+        "planner": 2.669,
+        "code_generator": 13.938,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "TAP version 13\n# Subtest: deep clone objects and dates\nnot ok 1 - deep clone objects and dates\n  ---\n  duration_ms: 0.8767\n  type: 'test'\n  location: 'C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\tmp7vcqjk4a\\\\test_solution.test.js:12:1'\n  failureType: 'testCodeFailure'\n  error: 'fn is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    TestContext.<anonymous> (C:\\Users\\HP\\AppData\\Local\\Temp\\tmp7vcqjk4a\\test_solution.test.js:15:18)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 91.7079\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 888
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a JavaScript function `deepClone(obj)` that creates a deep copy of an object, handling nested objects, arrays, Date objects, RegExp objects, and primitives.",
+                "description": "Write a JavaScript function `deepClone(obj)` that creates a deep copy of an object, handling nested objects, arrays, Date objects, RegExp objects, and primitives.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "JavaScript",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "js-med-02",
+      "language": "JavaScript",
+      "difficulty": "medium",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.688,
+      "node_latencies": {
+        "rag_context": 0.055,
+        "planner": 2.689,
+        "code_generator": 13.944,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "TAP version 13\n# Subtest: debounce delays execution\nnot ok 1 - debounce delays execution\n  ---\n  duration_ms: 0.7759\n  type: 'test'\n  location: 'C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\tmpf4_tnaq9\\\\test_solution.test.js:12:1'\n  failureType: 'testCodeFailure'\n  error: 'fn is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    TestContext.<anonymous> (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpf4_tnaq9\\test_solution.test.js:14:23)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1034:21)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 88.3401\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 706
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a JavaScript function `debounce(fn, delay)` that returns a debounced version of the function `fn` which delays its execution until after `delay` milliseconds have elapsed since the last call.",
+                "description": "Write a JavaScript function `debounce(fn, delay)` that returns a debounced version of the function `fn` which delays its execution until after `delay` milliseconds have elapsed since the last call.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "JavaScript",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "js-hard-01",
+      "language": "JavaScript",
+      "difficulty": "hard",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.659,
+      "node_latencies": {
+        "rag_context": 0.041,
+        "planner": 2.718,
+        "code_generator": 13.899,
+        "finalise": 0.001
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "TAP version 13\n# Subtest: event emitter on, emit, once, off\nnot ok 1 - event emitter on, emit, once, off\n  ---\n  duration_ms: 0.7656\n  type: 'test'\n  location: 'C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\tmp_5m070xt\\\\test_solution.test.js:12:1'\n  failureType: 'testCodeFailure'\n  error: 'EE is not a constructor'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    TestContext.<anonymous> (C:\\Users\\HP\\AppData\\Local\\Temp\\tmp_5m070xt\\test_solution.test.js:13:21)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 81.1553\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 859
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a JavaScript `EventEmitter` class supporting `on(event, listener)`, `off(event, listener)`, `once(event, listener)`, and `emit(event, ...args)`. Return an unsubscribe function from `on` and `once`.",
+                "description": "Write a JavaScript `EventEmitter` class supporting `on(event, listener)`, `off(event, listener)`, `once(event, listener)`, and `emit(event, ...args)`. Return an unsubscribe function from `on` and `once`.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "JavaScript",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "js-hard-02",
+      "language": "JavaScript",
+      "difficulty": "hard",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.596,
+      "node_latencies": {
+        "rag_context": 0.048,
+        "planner": 2.674,
+        "code_generator": 13.873,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "TAP version 13\n# Subtest: async task queue concurrency limit\nnot ok 1 - async task queue concurrency limit\n  ---\n  duration_ms: 0.9042\n  type: 'test'\n  location: 'C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\tmpyoi2mmtg\\\\test_solution.test.js:12:1'\n  failureType: 'testCodeFailure'\n  error: 'Queue is not a constructor'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    TestContext.<anonymous> (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpyoi2mmtg\\test_solution.test.js:13:15)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 90.1424\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 820
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a JavaScript class `AsyncTaskQueue(concurrency)` that executes async tasks added via `push(taskFn)` returning a Promise that resolves with taskFn's result, executing at most `concurrency` tasks simultaneously.",
+                "description": "Write a JavaScript class `AsyncTaskQueue(concurrency)` that executes async tasks added via `push(taskFn)` returning a Promise that resolves with taskFn's result, executing at most `concurrency` tasks simultaneously.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "JavaScript",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "cpp-easy-01",
+      "language": "C++",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.541,
+      "node_latencies": {
+        "rag_context": 0.04,
+        "planner": 2.67,
+        "code_generator": 13.83,
+        "finalise": 0.001
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "",
+        "stderr": "[WARNING: Running in local fallback mode]\nCompilation Error:\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccBzjPZr.o:test_solution_test.cpp:(.text.startup+0x38): undefined reference to `reverseWords(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccBzjPZr.o:test_solution_test.cpp:(.text.startup+0x92): undefined reference to `reverseWords(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccBzjPZr.o:test_solution_test.cpp:(.text.startup+0xe9): undefined reference to `reverseWords(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)'\r\ncollect2.exe: error: ld returned 1 exit status\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1130
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a C++ function `std::string reverseWords(std::string s)` that reverses the order of words in a string. Words are separated by one or more spaces. Return words separated by a single space with no leading or trailing spaces. Do not include a main function.",
+                "description": "Write a C++ function `std::string reverseWords(std::string s)` that reverses the order of words in a string. Words are separated by one or more spaces. Return words separated by a single space with no leading or trailing spaces. Do not include a main function.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "C++",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "cpp-easy-02",
+      "language": "C++",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.877,
+      "node_latencies": {
+        "rag_context": 0.06,
+        "planner": 2.71,
+        "code_generator": 14.106,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "",
+        "stderr": "[WARNING: Running in local fallback mode]\nCompilation Error:\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\cchj9l9x.o:test_solution_test.cpp:(.text.startup+0x4b): undefined reference to `isAnagram(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\cchj9l9x.o:test_solution_test.cpp:(.text.startup+0xad): undefined reference to `isAnagram(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)'\r\ncollect2.exe: error: ld returned 1 exit status\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 922
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a C++ function `bool isAnagram(std::string s, std::string t)` that returns true if t is an anagram of s, and false otherwise. Do not include a main function.",
+                "description": "Write a C++ function `bool isAnagram(std::string s, std::string t)` that returns true if t is an anagram of s, and false otherwise. Do not include a main function.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "C++",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "cpp-med-01",
+      "language": "C++",
+      "difficulty": "medium",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.605,
+      "node_latencies": {
+        "rag_context": 0.037,
+        "planner": 2.692,
+        "code_generator": 13.875,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "",
+        "stderr": "[WARNING: Running in local fallback mode]\nCompilation Error:\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccurJFWZ.o:test_solution_test.cpp:(.text.startup+0x1a): undefined reference to `MinStack::MinStack()'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccurJFWZ.o:test_solution_test.cpp:(.text.startup+0x29): undefined reference to `MinStack::push(int)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccurJFWZ.o:test_solution_test.cpp:(.text.startup+0x3b): undefined reference to `MinStack::push(int)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccurJFWZ.o:test_solution_test.cpp:(.text.startup+0x4d): undefined reference to `MinStack::push(int)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccurJFWZ.o:test_solution_test.cpp:(.text.startup+0x58): undefined reference to `MinStack::getMin()'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccurJFWZ.o:test_solution_test.cpp:(.text.startup+0x65): undefined reference to `MinStack::pop()'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccurJFWZ.o:test_solution_test.cpp:(.text.startup+0x6d): undefined reference to `MinStack::top()'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccurJFWZ.o:test_solution_test.cpp:(.text.startup+0x79): undefined reference to `MinStack::getMin()'\r\ncollect2.exe: error: ld returned 1 exit status\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1010
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a C++ class `MinStack` supporting `push(int val)`, `pop()`, `top() -> int`, and `getMin() -> int`, each operating in O(1) time complexity. Do not include a main function.",
+                "description": "Write a C++ class `MinStack` supporting `push(int val)`, `pop()`, `top() -> int`, and `getMin() -> int`, each operating in O(1) time complexity. Do not include a main function.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "C++",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "cpp-med-02",
+      "language": "C++",
+      "difficulty": "medium",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.603,
+      "node_latencies": {
+        "rag_context": 0.058,
+        "planner": 2.651,
+        "code_generator": 13.894,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "",
+        "stderr": "[WARNING: Running in local fallback mode]\nCompilation Error:\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\cc1WWOlV.o:test_solution_test.cpp:(.text.startup+0x8f): undefined reference to `productExceptSelf(std::vector<int, std::allocator<int> > const&)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\cc1WWOlV.o:test_solution_test.cpp:(.text.startup+0x137): undefined reference to `productExceptSelf(std::vector<int, std::allocator<int> > const&)'\r\ncollect2.exe: error: ld returned 1 exit status\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 956
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a C++ function `std::vector<int> productExceptSelf(const std::vector<int>& nums)` that returns an array where output[i] is equal to the product of all elements of nums except nums[i], in O(N) time without using division. Do not include a main function.",
+                "description": "Write a C++ function `std::vector<int> productExceptSelf(const std::vector<int>& nums)` that returns an array where output[i] is equal to the product of all elements of nums except nums[i], in O(N) time without using division. Do not include a main function.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "C++",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "cpp-hard-01",
+      "language": "C++",
+      "difficulty": "hard",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.63,
+      "node_latencies": {
+        "rag_context": 0.034,
+        "planner": 2.671,
+        "code_generator": 13.925,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "",
+        "stderr": "[WARNING: Running in local fallback mode]\nCompilation Error:\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccjyCl0F.o:test_solution_test.cpp:(.text.startup+0x6f): undefined reference to `lengthOfLIS(std::vector<int, std::allocator<int> > const&)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccjyCl0F.o:test_solution_test.cpp:(.text.startup+0xc2): undefined reference to `lengthOfLIS(std::vector<int, std::allocator<int> > const&)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccjyCl0F.o:test_solution_test.cpp:(.text.startup+0x107): undefined reference to `lengthOfLIS(std::vector<int, std::allocator<int> > const&)'\r\ncollect2.exe: error: ld returned 1 exit status\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 967
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a C++ function `int lengthOfLIS(const std::vector<int>& nums)` that returns the length of the longest strictly increasing subsequence in O(N log N) time complexity. Do not include a main function.",
+                "description": "Write a C++ function `int lengthOfLIS(const std::vector<int>& nums)` that returns the length of the longest strictly increasing subsequence in O(N log N) time complexity. Do not include a main function.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "C++",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    },
+    {
+      "task_id": "cpp-hard-02",
+      "language": "C++",
+      "difficulty": "hard",
+      "passed": false,
+      "agent_tests_passed": false,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 16.646,
+      "node_latencies": {
+        "rag_context": 0.055,
+        "planner": 2.667,
+        "code_generator": 13.923,
+        "finalise": 0.001
+      },
+      "sandbox_error": false,
+      "fatal_error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+      "sandbox_output": {
+        "stdout": "",
+        "stderr": "[WARNING: Running in local fallback mode]\nCompilation Error:\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccOCWiBI.o:test_solution_test.cpp:(.text.startup+0x1a3): undefined reference to `shortestPath(int, std::vector<std::vector<int, std::allocator<int> >, std::allocator<std::vector<int, std::allocator<int> > > > const&, int, int)'\r\nc:/mingw/bin/../lib/gcc/mingw32/9.2.0/../../../../mingw32/bin/ld.exe: C:\\Users\\HP\\AppData\\Local\\Temp\\ccOCWiBI.o:test_solution_test.cpp:(.text.startup+0x1c8): undefined reference to `shortestPath(int, std::vector<std::vector<int, std::allocator<int> >, std::allocator<std::vector<int, std::allocator<int> > > > const&, int, int)'\r\ncollect2.exe: error: ld returned 1 exit status\n",
+        "exit_code": 1
+      },
+      "final_code": "",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1501
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "warning",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Write a C++ function `int shortestPath(int numNodes, const std::vector<std::vector<int>>& edges, int src, int dst)` that computes the shortest path distance from src to dst using Dijkstra's algorithm. Each edge is given as [u, v, weight]. If dst is unreachable, return -1. Do not include a main function.",
+                "description": "Write a C++ function `int shortestPath(int numNodes, const std::vector<std::vector<int>>& edges, int src, int dst)` that computes the shortest path distance from src to dst using Dijkstra's algorithm. Each edge is given as [u, v, weight]. If dst is unreachable, return -1. Do not include a main function.",
+                "files": [
+                  "solution.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "failed",
+          "data": {
+            "code": "",
+            "language": "C++",
+            "agent": "CodeGenerator",
+            "success": false,
+            "error": "CodeGenerator failed after 3 attempts: All connection attempts failed",
+            "attempts": 3
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "",
+            "test_code": ""
+          }
+        }
+      ]
+    }
+  ]
+}

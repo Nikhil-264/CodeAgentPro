@@ -1,0 +1,215 @@
+{
+  "metadata": {
+    "timestamp": "2026-08-25T01:17:29.516582",
+    "git_commit": "dd0ae8f",
+    "model": "deepseek-coder:6.7b",
+    "provider": "ollama",
+    "max_debug_attempts": 5,
+    "dataset_path": "C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\backend\\eval\\dataset\\tasks.yaml"
+  },
+  "summary": {
+    "total_tasks": 1,
+    "pass_at_1": 0.0,
+    "pass_at_k": 0.0,
+    "give_up_rate": 0.0,
+    "avg_debug_attempts_repair": 0.0,
+    "avg_latency_per_task": 153.105,
+    "avg_node_latencies": {
+      "rag_context": 25.048,
+      "planner": 22.124,
+      "code_generator": 48.041,
+      "sandbox_execute": 0.692,
+      "test_generator": 32.569,
+      "run_tests": 1.458,
+      "refactor": 23.172,
+      "finalise": 0.0
+    },
+    "sandbox_failure_rate": 0.0,
+    "by_language": {
+      "Python": {
+        "count": 1,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 153.105
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "count": 1,
+        "pass_at_1": 0.0,
+        "pass_at_k": 0.0,
+        "avg_latency": 153.105
+      }
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "py-easy-01",
+      "language": "Python",
+      "difficulty": "easy",
+      "passed": false,
+      "agent_tests_passed": true,
+      "debug_attempts": 0,
+      "hit_max_debug": false,
+      "pass_at_1": false,
+      "pass_at_k": false,
+      "total_latency": 153.105,
+      "node_latencies": {
+        "rag_context": 25.048,
+        "planner": 22.124,
+        "code_generator": 48.041,
+        "sandbox_execute": 0.692,
+        "test_generator": 32.569,
+        "run_tests": 1.458,
+        "refactor": 23.172,
+        "finalise": 0.0
+      },
+      "sandbox_error": false,
+      "fatal_error": null,
+      "sandbox_output": {
+        "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpypix65jt\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 0 items / 1 error\r\n\r\n=================================== ERRORS ====================================\r\n______________________ ERROR collecting test_solution.py ______________________\r\nImportError while importing test module 'C:\\Users\\HP\\AppData\\Local\\Temp\\tmpypix65jt\\test_solution.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\Programs\\Python\\Python313\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntest_solution.py:2: in <module>\r\n    from solution import two_sum\r\nE   ImportError: cannot import name 'two_sum' from 'solution' (C:\\Users\\HP\\AppData\\Local\\Temp\\tmpypix65jt\\solution.py)\r\n=========================== short test summary info ===========================\r\nERROR test_solution.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n============================== 1 error in 0.25s ===============================\r\n",
+        "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+        "exit_code": 2
+      },
+      "final_code": "def find_two_sum(numbers: list[int], target: int) -> list[int]:\n    \"\"\"Finds two numbers from a given list that add up to a target number.\"\"\"\n    \n    num_dict = {}  # Dictionary to store visited elements and their indices.\n    \n    for index, num in enumerate(numbers):\n        diff = target - num\n        \n        if diff in num_dict:\n            return [num_dict[diff], index]\n            \n        num_dict[num] = index\n    \n    raise ValueError(\"No two sum solution\")",
+      "events": [
+        {
+          "step": "RAG",
+          "status": "success",
+          "data": {
+            "length": 1058
+          }
+        },
+        {
+          "step": "Planner",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Planner",
+          "status": "success",
+          "data": {
+            "plan": [
+              {
+                "id": 1,
+                "title": "Define function two_sum(nums: list[int], target: int) -> list[int]",
+                "description": "Create a Python function that takes in a list of integers and a target integer. The function should return the indices of two numbers from the input list such that they add up to the target.",
+                "files": [
+                  "main.py"
+                ]
+              },
+              {
+                "id": 2,
+                "title": "Implement logic for finding two numbers",
+                "description": "The function should iterate over each number in the input list and find a second number that when added to it equals the target.",
+                "files": [
+                  "main.py"
+                ]
+              },
+              {
+                "id": 3,
+                "title": "Return indices in ascending order",
+                "description": "The function should return the indices of the two numbers in ascending order.",
+                "files": [
+                  "main.py"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "CodeGenerator",
+          "status": "success",
+          "data": {
+            "code_length": 1075,
+            "code": "def two_sum(nums, target):\n    \"\"\"\n    This function takes a list of integers and a target integer as input and returns \n    indices of the two numbers such that they add up to target. Each input has exactly one solution. \n    Return indices in ascending order.\n    \n    :param nums: List of integers\n    :type nums: list[int]\n    :param target: Target integer\n    :type target: int\n    :return: Indices of two numbers that add up to the target\n    :rtype: list[int]\n    \"\"\"\n    \n    # Initialize an empty dictionary to store visited elements and their indices\n    seen = {}\n    \n    for i, n in enumerate(nums):\n        # If the difference between target and current number is already in the dictionary, \n        # we have found two numbers that add up to the target. Return their indices.\n        if target - n in seen:\n            return [seen[target - n], i]\n        \n        # Add the current number and its index to the dictionary\n        seen[n] = i\n    \n    # If no pair of numbers adds up to the target, raise an exception\n    raise ValueError(\"No two sum solution\")"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "initial_run"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "success",
+          "data": {
+            "stdout": "",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false
+          }
+        },
+        {
+          "step": "TestGenerator",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "TestGenerator",
+          "status": "success",
+          "data": {
+            "test_code": "import pytest\nfrom solution import two_sum\n\ndef test_two_sum():\n    assert two_sum([2, 7, 11, 5], 9) == [0, 1]\n    assert two_sum([3, 2, 4], 6) == [1, 2]\n    assert two_sum([3, 3], 6) == [0, 1]\n    \ndef test_two_sum_no_solution():\n    with pytest.raises(ValueError):\n        two_sum([2, 7, 11, 5], 15)"
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "running",
+          "data": {
+            "phase": "test_run",
+            "attempt": 0
+          }
+        },
+        {
+          "step": "Sandbox",
+          "status": "success",
+          "data": {
+            "stdout": "============================= test session starts =============================\r\nplatform win32 -- Python 3.13.6, pytest-9.1.1, pluggy-1.6.0 -- C:\\Users\\HP\\Documents\\Coding journeys\\CV projects\\CodeAgentPro\\.venv\\Scripts\\python.exe\r\ncachedir: .pytest_cache\r\nrootdir: C:\\Users\\HP\\AppData\\Local\\Temp\\tmpx1uekgd3\r\nplugins: anyio-4.13.0, langsmith-0.8.6\r\ncollecting ... collected 2 items\r\n\r\ntest_solution.py::test_two_sum PASSED                                    [ 50%]\r\ntest_solution.py::test_two_sum_no_solution PASSED                        [100%]\r\n\r\n============================== 2 passed in 0.04s ==============================\r\n",
+            "stderr": "[WARNING: Running in local fallback mode without Docker sandbox]\n",
+            "exit_code": 0,
+            "success": true,
+            "timed_out": false,
+            "attempt": 0
+          }
+        },
+        {
+          "step": "DebugLoop",
+          "status": "success",
+          "data": {
+            "attempts": 0,
+            "message": "All tests passed!"
+          }
+        },
+        {
+          "step": "Refactor",
+          "status": "running",
+          "data": {}
+        },
+        {
+          "step": "Refactor",
+          "status": "success",
+          "data": {
+            "code": "def find_two_sum(numbers: list[int], target: int) -> list[int]:\n    \"\"\"Finds two numbers from a given list that add up to a target number.\"\"\"\n    \n    num_dict = {}  # Dictionary to store visited elements and their indices.\n    \n    for index, num in enumerate(numbers):\n        diff = target - num\n        \n        if diff in num_dict:\n            return [num_dict[diff], index]\n            \n        num_dict[num] = index\n    \n    raise ValueError(\"No two sum solution\")",
+            "refactored_code": "def find_two_sum(numbers: list[int], target: int) -> list[int]:\n    \"\"\"Finds two numbers from a given list that add up to a target number.\"\"\"\n    \n    num_dict = {}  # Dictionary to store visited elements and their indices.\n    \n    for index, num in enumerate(numbers):\n        diff = target - num\n        \n        if diff in num_dict:\n            return [num_dict[diff], index]\n            \n        num_dict[num] = index\n    \n    raise ValueError(\"No two sum solution\")"
+          }
+        },
+        {
+          "step": "Pipeline",
+          "status": "success",
+          "data": {
+            "final_code": "def find_two_sum(numbers: list[int], target: int) -> list[int]:\n    \"\"\"Finds two numbers from a given list that add up to a target number.\"\"\"\n    \n    num_dict = {}  # Dictionary to store visited elements and their indices.\n    \n    for index, num in enumerate(numbers):\n        diff = target - num\n        \n        if diff in num_dict:\n            return [num_dict[diff], index]\n            \n        num_dict[num] = index\n    \n    raise ValueError(\"No two sum solution\")",
+            "test_code": "import pytest\nfrom solution import two_sum\n\ndef test_two_sum():\n    assert two_sum([2, 7, 11, 5], 9) == [0, 1]\n    assert two_sum([3, 2, 4], 6) == [1, 2]\n    assert two_sum([3, 3], 6) == [0, 1]\n    \ndef test_two_sum_no_solution():\n    with pytest.raises(ValueError):\n        two_sum([2, 7, 11, 5], 15)"
+          }
+        }
+      ]
+    }
+  ]
+}
