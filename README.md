@@ -37,7 +37,7 @@ All agents are orchestrated via **LangGraph** as a compiled state graph with con
 
 - **Python 3.11+**
 - **Node.js 20+**
-- **Docker Desktop** *(Optional: used for secure containerized execution sandboxing; falls back to local execution if missing/not running)*
+- **Docker Desktop** — used for secure containerized execution sandboxing. If Docker is not running, the pipeline aborts with a clear error **unless** you explicitly opt into unsandboxed local execution by setting `ALLOW_LOCAL_SANDBOX=true` (local development only — generated code then runs directly on your machine with no isolation).
 - **[Ollama](https://ollama.com)** *(Optional: if running local models like `deepseek-coder:6.7b`)*
 
 ---
@@ -54,6 +54,10 @@ GEMINI_API_KEY=your_gemini_api_key_here
 
 # Local Ollama URL
 OLLAMA_BASE_URL=http://localhost:11434
+
+# Execution sandbox: code runs in Docker by default. Set to true to allow
+# unsandboxed local execution when Docker is unavailable (local dev only).
+ALLOW_LOCAL_SANDBOX=false
 ```
 
 ### 2. Pull local model (for Ollama)
@@ -96,7 +100,7 @@ CodeAgent Pro features a multi-collection **ChromaDB** vector store powered by `
 
 1. **Docs Store (`docs`)**: Contains built-in documentation for FastAPI, Pytest, Python idioms, and DSA algorithms.
 2. **Codebase Store (`codebase`)**: Indexes local project directories for context-aware coding.
-3. **Error Memory Store (`error_memory`)**: Records successful `(broken_code, error_stacktrace, fixed_code)` pairs to prevent repeating past debugging errors.
+3. **Error Memory Store (`error_memory`)**: Records `(broken_code, error_stacktrace, fixed_code)` pairs to prevent repeating past debugging errors. A fix is staged during the debug step and only written to memory **after** the next test run confirms it actually passes — unverified fixes are never persisted.
 
 ### RAG Latency Optimization
 - **Singleton Model Cache**: The embedding model is cached globally (`_EMBEDDING_MODEL` singleton in `base_store.py`).
@@ -108,7 +112,7 @@ Seed built-in documentation:
 curl -X POST http://localhost:8000/api/rag/seed-docs
 ```
 
-Index a local directory:
+Index a local directory (confined to the project root — paths outside it are rejected):
 ```bash
 curl -X POST http://localhost:8000/api/rag/index-project \
   -H "Content-Type: application/json" \
@@ -143,7 +147,22 @@ python -m eval.run_eval --provider gemini --model gemini-3.6-flash
 python -m eval.run_eval --provider ollama --model deepseek-coder:6.7b
 
 # Compare candidate run against baseline to flag quality regressions
+# (exits non-zero if pass@1 / pass@k drop > 5 pts, or any task flips pass -> fail)
 python -m eval.run_eval --provider groq --model openai/gpt-oss-20b --compare eval/runs/baseline.json
+```
+
+### Regression gate in CI
+
+`.github/workflows/eval.yml` runs a 5-task subset on every PR that touches `backend/**`.
+If `backend/eval/runs/baseline.json` exists, the workflow runs with `--compare` against it
+and **fails the check on regression**; otherwise it posts the metrics as a PR comment only.
+To enable gating, generate a known-good run once and commit it as the baseline:
+
+```bash
+cd backend
+ALLOW_LOCAL_SANDBOX=true python -m eval.run_eval --provider groq \
+  --model openai/gpt-oss-20b --subset 5 --output-dir eval/runs
+cp eval/runs/run_<timestamp>_<model>.json eval/runs/baseline.json
 ```
 
 ---
@@ -281,7 +300,7 @@ CodeAgentPro/
 
 ## Key Design Decisions
 
-- **Why LangGraph?** The self-repair loop is a cycle in the state graph. Conditional abort edges prevent runaway execution if generation fails.
+- **Why LangGraph?** The self-repair loop is a cycle in the state graph. Conditional abort edges prevent runaway execution if generation fails or no execution sandbox is available.
 - **Why Multi-Provider (Ollama, Groq, Gemini)?** Offers total privacy with local Ollama (`deepseek-coder:6.7b`), or high-speed cloud inference with Groq (`openai/gpt-oss-20b`, `qwen/qwen3.6-27b`) or Google Gemini (`gemini-3.6-flash`, `gemini-3.7-flash`).
-- **Why Multi-Language Sandboxing?** Executes Python (`pytest`), JavaScript (`node --test`), and C++ (`gcc`) inside isolated containers with strict resource caps.
+- **Why Multi-Language Sandboxing?** Executes Python (`pytest`), JavaScript (`node --test`), and C++ (`gcc`) inside isolated containers with strict resource caps (`--network none`, `--memory 256m/512m`, read-only mounts). Unsandboxed local execution is opt-in only (`ALLOW_LOCAL_SANDBOX=true`).
 - **Why ChromaDB RAG?** Persistent local vector store with singleton embedding caching. Error memory grows with every successful fix, preventing the debugger from repeating mistakes.

@@ -43,7 +43,6 @@ class AgentPipeline:
             # Defaults
             "plan": [],
             "rag_context": "",
-            "debug_context": "",
             "current_code": "",
             "test_code": "",
             "exec_stdout": "",
@@ -53,6 +52,7 @@ class AgentPipeline:
             "max_debug_attempts": self.MAX_DEBUG_ATTEMPTS,
             "tests_passed": False,
             "last_error": "",
+            "pending_fix": None,
             "final_code": "",
             "events": [],
             "error": None,

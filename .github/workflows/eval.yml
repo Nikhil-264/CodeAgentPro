@@ -35,11 +35,22 @@ jobs:
           pip install -r backend/requirements.txt pyyaml
 
       - name: Run Agent Evaluation Subset (5 tasks)
+        working-directory: backend
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           FORCE_LOCAL_SANDBOX: "false"
+          ALLOW_LOCAL_SANDBOX: "true"   # GitHub runner has no Docker daemon
         run: |
-          python -m eval.run_eval --provider groq --model openai/gpt-oss-20b --subset 5 --output-dir backend/eval/runs
+          BASELINE=eval/runs/baseline.json
+          if [ -f "$BASELINE" ]; then
+            echo "Comparing against committed baseline: $BASELINE"
+            python -m eval.run_eval --provider groq --model openai/gpt-oss-20b \
+              --subset 5 --output-dir eval/runs --compare "$BASELINE"
+          else
+            echo "::warning::No eval/runs/baseline.json committed — running without a regression gate."
+            python -m eval.run_eval --provider groq --model openai/gpt-oss-20b \
+              --subset 5 --output-dir eval/runs
+          fi
 
       - name: Find Eval Report File
         id: report_file

@@ -7,6 +7,26 @@ from pathlib import Path
 
 _DOCKER_AVAILABLE = None
 FORCE_LOCAL_SANDBOX = os.getenv("FORCE_LOCAL_SANDBOX", "false").lower() == "true"
+# Local fallback runs generated code directly on the host with NO isolation
+# (no container, no --network none, no memory cap). It must be opted into
+# explicitly. Forcing local mode implies consent to it.
+ALLOW_LOCAL_SANDBOX = os.getenv("ALLOW_LOCAL_SANDBOX", "false").lower() == "true"
+
+
+class LocalSandboxDisabledError(RuntimeError):
+    """Docker is unavailable and unsandboxed local execution has not been enabled."""
+
+
+_LOCAL_DISABLED_MSG = (
+    "No isolated execution sandbox is available: Docker is not running and "
+    "local fallback execution is disabled. Start Docker Desktop, or set "
+    "ALLOW_LOCAL_SANDBOX=true to run generated code directly on this host "
+    "(NOT isolated — local development only)."
+)
+
+
+def _local_allowed() -> bool:
+    return ALLOW_LOCAL_SANDBOX or FORCE_LOCAL_SANDBOX
 
 
 async def check_docker() -> bool:
@@ -68,7 +88,9 @@ class ExecutionSandbox:
                     cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", "-v", f"{tmpdir}:/workspace:ro", "-w", "/workspace", self.DOCKER_IMAGE, "python", filename]
                 return await self._run_subprocess(cmd)
             else:
-                # Local fallback execution
+                if not _local_allowed():
+                    raise LocalSandboxDisabledError(_LOCAL_DISABLED_MSG)
+                # Local fallback execution (host, not isolated)
                 if ext == ".js":
                     node_bin = shutil.which("node") or "node"
                     cmd = [node_bin, filename]
@@ -114,7 +136,9 @@ class ExecutionSandbox:
                     cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", self.DOCKER_IMAGE, "sh", "-c", "pip install pytest -q 2>/dev/null && pytest test_solution.py -v --tb=short 2>&1"]
                 return await self._run_subprocess(cmd, timeout=60)
             else:
-                # Local fallback test execution
+                if not _local_allowed():
+                    raise LocalSandboxDisabledError(_LOCAL_DISABLED_MSG)
+                # Local fallback test execution (host, not isolated)
                 if ext == ".js":
                     node_bin = shutil.which("node") or "node"
                     cmd = [node_bin, "--test", f"test_solution{test_ext}"]

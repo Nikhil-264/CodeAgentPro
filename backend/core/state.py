@@ -3,7 +3,7 @@ Pipeline State
 The single shared state object that flows through every LangGraph node.
 Each agent reads what it needs and writes its output back into state.
 """
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, Any
 
 
 class PipelineState(TypedDict):
@@ -20,7 +20,6 @@ class PipelineState(TypedDict):
 
     # ── RAG context ────────────────────────────────────────────────────────
     rag_context: str               # Injected before code generation
-    debug_context: str             # Injected before each debug attempt
 
     # ── Code generation ────────────────────────────────────────────────────
     current_code: str
@@ -33,9 +32,12 @@ class PipelineState(TypedDict):
 
     # ── Debug loop ─────────────────────────────────────────────────────────
     debug_attempt: int
-    max_debug_attempts: int
+    max_debug_attempts: int        # loop bound, read by after_tests_run
     tests_passed: bool
     last_error: str
+    pending_fix: Optional[dict[str, Any]]   # staged (error, broken_code, fixed_code,
+                                            # task, language); persisted to error
+                                            # memory only after run_tests verifies it
 
     # ── Refactor ───────────────────────────────────────────────────────────
     final_code: str

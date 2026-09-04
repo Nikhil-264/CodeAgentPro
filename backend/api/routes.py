@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+from typing import Optional
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -6,6 +8,25 @@ from core.pipeline import AgentPipeline
 from core.llm_client import OllamaClient
 
 router = APIRouter()
+
+# Repo root = two levels up from backend/api/routes.py
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _safe_index_path(raw: str) -> Optional[Path]:
+    """Resolve `raw` and confirm it stays inside the project root.
+
+    Prevents the index-project endpoint from being used to walk / disclose
+    arbitrary files on the host.
+    """
+    try:
+        base = Path(raw)
+        candidate = (base if base.is_absolute() else _PROJECT_ROOT / base).resolve()
+    except Exception:
+        return None
+    if candidate == _PROJECT_ROOT or _PROJECT_ROOT in candidate.parents:
+        return candidate
+    return None
 
 # RAG optional import
 try:
@@ -148,10 +169,20 @@ async def rag_seed_docs():
 
 @router.post("/rag/index-project")
 async def rag_index_project(req: IndexProjectRequest):
-    """Index a local project directory into the codebase RAG store."""
+    """Index a local project directory into the codebase RAG store.
+
+    The directory is confined to the project root; paths outside it are rejected.
+    """
     if not RAG_AVAILABLE:
         return {"available": False}
-    result = _rag.index_project(req.directory)
+    safe_dir = _safe_index_path(req.directory)
+    if safe_dir is None:
+        return {"available": True, "status": "failed",
+                "error": "directory must be inside the project root"}
+    if not safe_dir.exists():
+        return {"available": True, "status": "failed",
+                "error": f"path does not exist: {safe_dir}"}
+    result = _rag.index_project(str(safe_dir))
     return {"available": True, **result}
 
 

@@ -5,7 +5,7 @@ does its work, and returns a partial state dict to merge back in.
 """
 from core.state import PipelineState
 from core.llm_client import OllamaClient
-from core.sandbox import ExecutionSandbox
+from core.sandbox import ExecutionSandbox, LocalSandboxDisabledError
 from agents.planner import PlannerAgent
 from agents.code_generator import CodeGeneratorAgent
 from agents.test_generator import TestGeneratorAgent
@@ -88,6 +88,18 @@ async def node_sandbox_execute(state: PipelineState) -> dict:
             "exec_success": result["success"],
             "events": events,
         }
+    except LocalSandboxDisabledError as e:
+        # Fatal: no isolated execution environment is available. Abort the run
+        # instead of silently executing generated code on the host.
+        events = events + [_event("Sandbox", "failed",
+                                   {"stdout": "", "stderr": str(e), "success": False})]
+        return {
+            "error": str(e),
+            "exec_stdout": "",
+            "exec_stderr": str(e),
+            "exec_success": False,
+            "events": events,
+        }
     except Exception as e:
         err_msg = f"Sandbox execution failed: {str(e)}. Make sure Docker Desktop is running."
         events = events + [_event("Sandbox", "warning", {"stdout": "", "stderr": err_msg, "success": False})]
@@ -140,6 +152,12 @@ async def node_run_tests(state: PipelineState) -> dict:
 
         error_out = result["stdout"] + "\n" + result["stderr"]
 
+        # A debugger fix is staged in state["pending_fix"] but not persisted
+        # until a test run actually confirms it works. That confirmation is now.
+        pending_fix = state.get("pending_fix")
+        if tests_passed and RAG_AVAILABLE and pending_fix:
+            _rag.record_successful_fix(**pending_fix)
+
         if tests_passed:
             events = events + [_event("DebugLoop", "success",
                                        {"attempts": attempt, "message": "All tests passed!"})]
@@ -149,6 +167,18 @@ async def node_run_tests(state: PipelineState) -> dict:
             "last_error": error_out,
             "exec_stdout": result["stdout"],
             "exec_stderr": result["stderr"],
+            "pending_fix": None,
+            "events": events,
+        }
+    except LocalSandboxDisabledError as e:
+        events = events + [_event("Sandbox", "failed",
+                                   {"stdout": "", "stderr": str(e), "success": False, "attempt": attempt})]
+        return {
+            "error": str(e),
+            "tests_passed": False,
+            "last_error": str(e),
+            "exec_stdout": "",
+            "exec_stderr": str(e),
             "events": events,
         }
     except Exception as e:
@@ -182,19 +212,23 @@ async def node_debugger(state: PipelineState) -> dict:
                                "success" if result["success"] else "warning",
                                {"attempt": attempt})]
 
-    # Store fix in error memory
-    if RAG_AVAILABLE and result["success"]:
-        _rag.record_successful_fix(
-            error=error,
-            broken_code=state["current_code"],
-            fixed_code=result["fixed_code"],
-            task=state["task"],
-            language=state["language"],
-        )
+    # Stage the fix as a candidate. It is written to long-term error memory
+    # only after the next run_tests confirms the tests pass (see node_run_tests).
+    # Recording here would persist unverified — or malformed — "fixes".
+    pending_fix = None
+    if RAG_AVAILABLE and result["success"] and result.get("fixed_code"):
+        pending_fix = {
+            "error": error,
+            "broken_code": state["current_code"],
+            "fixed_code": result["fixed_code"],
+            "task": state["task"],
+            "language": state["language"],
+        }
 
     return {
         "current_code": result["fixed_code"],
         "debug_attempt": attempt,
+        "pending_fix": pending_fix,
         "events": events,
     }
 

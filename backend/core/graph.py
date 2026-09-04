@@ -42,7 +42,9 @@ def should_abort(state: PipelineState) -> str:
 
 
 def should_skip_tests(state: PipelineState) -> str:
-    """After sandbox execute: skip tests if flag set."""
+    """After sandbox execute: abort on fatal error, else skip tests if flag set."""
+    if state.get("error"):
+        return "finalise"
     if state.get("skip_tests"):
         return "finalise"
     return "test_generator"
@@ -63,7 +65,8 @@ def after_tests_run(state: PipelineState) -> str:
         return "refactor"
 
     attempts = state.get("debug_attempt", 0)
-    if attempts >= MAX_DEBUG_ATTEMPTS:
+    limit = state.get("max_debug_attempts") or MAX_DEBUG_ATTEMPTS
+    if attempts >= limit:
         return "finalise"   # Give up — exceeded retry limit
 
     return "debugger"
