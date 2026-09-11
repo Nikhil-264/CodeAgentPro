@@ -37,6 +37,8 @@ def parse_args():
     parser.add_argument("--max-debug", type=int, default=5, help="Max debug attempts per task")
     parser.add_argument("--output-dir", type=str, default=None, help="Output directory for runs")
     parser.add_argument("--compare", type=str, default=None, help="Baseline JSON file path to compare against")
+    parser.add_argument("--mlflow", action="store_true", help="Enable MLflow experiment tracking")
+    parser.add_argument("--experiment-name", type=str, default="CodeAgentPro_Evaluation", help="MLflow experiment name")
     return parser.parse_args()
 
 
@@ -56,6 +58,67 @@ def load_dataset(dataset_path: Path, language_filter: str, subset: int = None):
         tasks = tasks[:subset]
 
     return tasks
+
+
+def log_mlflow_results(summary: dict, args, dataset_path: Path, run_file: Path):
+    """Safely log benchmark parameters, summary metrics, and output artifacts to MLflow."""
+    try:
+        import mlflow
+    except ImportError:
+        print("[!] MLflow is not installed. Run 'pip install mlflow' to enable experiment tracking.")
+        return
+
+    exp_name = args.experiment_name
+    try:
+        mlflow.set_experiment(exp_name)
+    except Exception as e:
+        print(f"[!] Warning: Failed to set MLflow experiment '{exp_name}': {e}")
+
+    run_name = f"eval_{args.provider}_{args.model.replace('/', '_')}"
+    print(f"[*] Logging evaluation benchmark run to MLflow (Experiment: '{exp_name}')...")
+
+    try:
+        with mlflow.start_run(run_name=run_name):
+            # Log Hyperparameters & Configuration
+            mlflow.log_params({
+                "provider": args.provider,
+                "model": args.model,
+                "language_filter": args.language,
+                "max_debug_attempts": args.max_debug,
+                "subset": args.subset or "all",
+                "total_tasks": summary.get("total_tasks", 0),
+            })
+
+            # Log Core Benchmark Metrics
+            mlflow.log_metrics({
+                "pass_at_1": summary.get("pass_at_1", 0.0),
+                "pass_at_k": summary.get("pass_at_k", 0.0),
+                "give_up_rate": summary.get("give_up_rate", 0.0),
+                "avg_debug_attempts_repair": summary.get("avg_debug_attempts_repair", 0.0),
+                "avg_latency_per_task": summary.get("avg_latency_per_task", 0.0),
+                "sandbox_failure_rate": summary.get("sandbox_failure_rate", 0.0),
+            })
+
+            # Log Metrics by Language
+            for lang, m in summary.get("by_language", {}).items():
+                clean_lang = lang.lower().replace("+", "p")
+                mlflow.log_metric(f"pass_at_1_{clean_lang}", m.get("pass_at_1", 0.0))
+                mlflow.log_metric(f"pass_at_k_{clean_lang}", m.get("pass_at_k", 0.0))
+                mlflow.log_metric(f"latency_{clean_lang}", m.get("avg_latency", 0.0))
+
+            # Log Node Latency Breakdown
+            for node, lat in summary.get("avg_node_latencies", {}).items():
+                mlflow.log_metric(f"node_latency_{node}", lat)
+
+            # Log Artifacts
+            if run_file and Path(run_file).exists():
+                mlflow.log_artifact(str(run_file))
+            if dataset_path and Path(dataset_path).exists():
+                mlflow.log_artifact(str(dataset_path))
+
+        print("[+] MLflow experiment run successfully logged!")
+    except Exception as e:
+        print(f"[!] Warning: MLflow logging encountered an error: {e}")
 
 
 def print_summary_table(summary: dict, model: str, provider: str):
@@ -118,6 +181,11 @@ async def main_async():
     )
     print(f"[+] Saved evaluation run report to: {run_file}")
 
+    # Check MLflow logging requirement
+    enable_mlflow = args.mlflow or (os.getenv("MLFLOW_ENABLE", "false").lower() == "true")
+    if enable_mlflow:
+        log_mlflow_results(summary, args, dataset_path, run_file)
+
     if args.compare:
         comp_report, regressed = EvalComparator.compare_runs(args.compare, str(run_file))
         EvalComparator.print_comparison(comp_report)
@@ -132,3 +200,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

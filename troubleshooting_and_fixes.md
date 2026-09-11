@@ -250,5 +250,34 @@ Added 3-attempt automatic retry loops with exponential backoff (`await asyncio.s
 * **Agent Step Auto-Retries**: Implements 3-attempt internal retries with exponential backoff (`asyncio.sleep(2 * attempt)`) in generation agents to handle transient LLM output glitches.
 * **Strict Prompt Language Constraints**: Prompts strictly bind output to the target language (`Python`, `JavaScript`, `C++`), preventing unexpected cross-language rewriting during refactoring or debugging.
 
+---
 
+## 21. MLflow Experiment Tracking & Benchmarking Architecture
 
+### Overview
+To track, compare, and visualize agent performance metrics across different LLMs (**Groq**, **Gemini**, **Ollama**), **MLflow Experiment Tracking** is integrated directly into the offline benchmarking evaluation pipeline ([run_eval.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/eval/run_eval.py)).
+
+### Zero-Side-Effect Design
+The MLflow integration is engineered as a **non-invasive, optional layer**:
+* **Isolated Scope**: Confined entirely to `backend/eval/run_eval.py`. Core streaming endpoints ([routes.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/api/routes.py)), graph execution ([nodes.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/core/nodes.py)), and the React UI remain 100% untouched.
+* **Graceful Degradation**: Wrapped in a try/except guard. If `mlflow` is not installed or the tracking server is unreachable, the evaluation harness prints a friendly warning and continues saving standard local JSON reports without throwing errors.
+
+### Logged Data Schema
+When enabled via `--mlflow` or `MLFLOW_ENABLE=true`, each evaluation run records:
+1. **Hyperparameters**: `provider`, `model`, `language_filter`, `subset`, `max_debug_attempts`.
+2. **Global Metrics**: `pass_at_1`, `pass_at_k`, `give_up_rate`, `avg_debug_attempts_repair`, `avg_latency_per_task`, `sandbox_failure_rate`.
+3. **Language Metrics**: `pass_at_1_python`, `pass_at_1_javascript`, `pass_at_1_cpp`, and language-specific average latencies.
+4. **Node Latency Breakdown**: Average runtime for each pipeline stage (`node_latency_planner`, `node_latency_code_generator`, `node_latency_sandbox_execute`, etc.).
+5. **Artifacts**: Attaches full JSON execution run reports and dataset YAML definitions.
+
+### How to Run MLflow Evaluation & View UI
+
+1. **Run Evaluation Benchmark with MLflow Logging**:
+   ```bash
+   python -m eval.run_eval --provider groq --model openai/gpt-oss-20b --mlflow
+   ```
+2. **Launch Local MLflow Tracking UI**:
+   ```bash
+   mlflow ui
+   ```
+   Open `http://127.0.0.1:5000` in browser to compare model pass rates, node latencies, and regression charts.
