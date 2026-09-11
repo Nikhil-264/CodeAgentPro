@@ -94,15 +94,20 @@ class OllamaClient:
             "max_tokens": 4096,
         }
         
-        for attempt in range(4):
-            async with httpx.AsyncClient(timeout=120.0) as client:
-                response = await client.post(url, headers=headers, json=payload)
-                if response.status_code == 429 and attempt < 3:
-                    await asyncio.sleep(3 * (attempt + 1))
-                    continue
-                response.raise_for_status()
-                res_json = response.json()
-                return res_json["choices"][0]["message"]["content"]
+        try:
+            for attempt in range(4):
+                async with httpx.AsyncClient(timeout=120.0) as client:
+                    response = await client.post(url, headers=headers, json=payload)
+                    if response.status_code == 429 and attempt < 3:
+                        await asyncio.sleep(3 * (attempt + 1))
+                        continue
+                    response.raise_for_status()
+                    res_json = response.json()
+                    return res_json["choices"][0]["message"]["content"]
+        except Exception as e:
+            # Defensive redaction in case the key ever surfaces in an error
+            # (e.g. a transport error echoing request headers).
+            raise RuntimeError(str(e).replace(api_key, "***REDACTED***")) from None
 
     # ── Gemini Provider ───────────────────────────────────────────────────────
     async def _generate_gemini(self, prompt: str, system: str = "") -> str:
@@ -114,8 +119,12 @@ class OllamaClient:
         if not model_name.startswith("models/"):
             model_name = f"models/{model_name}"
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/{model_name}:generateContent?key={api_key}"
-        
+        # The key is sent as a header, not a `?key=` query param, so it never
+        # ends up embedded in a URL that gets echoed back into exception text,
+        # logs, or SSE events on failure.
+        url = f"https://generativelanguage.googleapis.com/v1beta/{model_name}:generateContent"
+        headers = {"x-goog-api-key": api_key}
+
         full_text = f"System Instruction: {system}\n\nUser Request: {prompt}" if system else prompt
         payload = {
             "contents": [
@@ -128,22 +137,27 @@ class OllamaClient:
                 "maxOutputTokens": 4096,
             }
         }
-        for attempt in range(4):
-            async with httpx.AsyncClient(timeout=120.0) as client:
-                response = await client.post(url, json=payload)
-                if response.status_code == 429 and attempt < 3:
-                    await asyncio.sleep(3 * (attempt + 1))
-                    continue
-                response.raise_for_status()
-                res_json = response.json()
-                candidates = res_json.get("candidates", [])
-                if not candidates:
-                    raise ValueError(f"Gemini returned empty candidates: {res_json}")
-                candidate = candidates[0]
-                content = candidate.get("content", {})
-                parts = content.get("parts", [])
-                text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
-                return text
+        try:
+            for attempt in range(4):
+                async with httpx.AsyncClient(timeout=120.0) as client:
+                    response = await client.post(url, headers=headers, json=payload)
+                    if response.status_code == 429 and attempt < 3:
+                        await asyncio.sleep(3 * (attempt + 1))
+                        continue
+                    response.raise_for_status()
+                    res_json = response.json()
+                    candidates = res_json.get("candidates", [])
+                    if not candidates:
+                        raise ValueError(f"Gemini returned empty candidates: {res_json}")
+                    candidate = candidates[0]
+                    content = candidate.get("content", {})
+                    parts = content.get("parts", [])
+                    text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                    return text
+        except Exception as e:
+            # Defensive redaction in case the key ever surfaces in an error
+            # (e.g. a transport error echoing request headers).
+            raise RuntimeError(str(e).replace(api_key, "***REDACTED***")) from None
 
     # ── Helpers ───────────────────────────────────────────────────────────────
     async def list_models(self) -> list[str]:

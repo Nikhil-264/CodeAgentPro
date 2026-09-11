@@ -1,13 +1,26 @@
+import asyncio
 import json
 from pathlib import Path
-from typing import Optional
-from fastapi import APIRouter
+from typing import Literal, Optional
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from core.pipeline import AgentPipeline
 from core.llm_client import OllamaClient
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
+
+# Caps concurrent pipeline/sandbox runs so a burst of requests can't spin up
+# unbounded Docker containers or exhaust host resources.
+MAX_CONCURRENT_PIPELINES = 3
+_PIPELINE_SLOTS = asyncio.Semaphore(MAX_CONCURRENT_PIPELINES)
+_PIPELINE_WAIT_TIMEOUT = 5.0  # seconds to wait for a free slot before failing fast
+
+SupportedLanguage = Literal["Python", "JavaScript", "C++"]
+SupportedProvider = Literal["ollama", "groq", "gemini"]
 
 # Repo root = two levels up from backend/api/routes.py
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -41,21 +54,32 @@ except ImportError:
 
 import os
 
+def _non_blank_task(v: str) -> str:
+    v = v.strip()
+    if not v:
+        raise ValueError("task must not be blank")
+    return v
+
+
 class GenerateRequest(BaseModel):
-    task: str
-    language: str = "Python"
-    framework: str = "standard library"
-    provider: str = "ollama"
-    model: str = "deepseek-coder:6.7b"
+    task: str = Field(..., min_length=3, max_length=4000)
+    language: SupportedLanguage = "Python"
+    framework: str = Field(default="standard library", max_length=100)
+    provider: SupportedProvider = "ollama"
+    model: str = Field(default="deepseek-coder:6.7b", min_length=1, max_length=200)
     skip_tests: bool = False
     skip_refactor: bool = False
 
+    _validate_task = field_validator("task")(_non_blank_task)
+
 
 class QuickGenerateRequest(BaseModel):
-    task: str
-    language: str = "Python"
-    provider: str = "ollama"
-    model: str = "deepseek-coder:6.7b"
+    task: str = Field(..., min_length=3, max_length=4000)
+    language: SupportedLanguage = "Python"
+    provider: SupportedProvider = "ollama"
+    model: str = Field(default="deepseek-coder:6.7b", min_length=1, max_length=200)
+
+    _validate_task = field_validator("task")(_non_blank_task)
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
@@ -95,7 +119,8 @@ async def list_models():
 
 
 @router.post("/generate/stream")
-async def generate_stream(req: GenerateRequest):
+@limiter.limit("5/minute")
+async def generate_stream(request: Request, req: GenerateRequest):
     """
     Stream the full agent pipeline as Server-Sent Events.
     Each event is a JSON object with shape: {step, status, data}
@@ -106,15 +131,30 @@ async def generate_stream(req: GenerateRequest):
     pipeline = AgentPipeline(model=full_model)
 
     async def event_stream():
-        async for event in pipeline.run(
-            task=req.task,
-            language=req.language,
-            framework=req.framework,
-            skip_tests=req.skip_tests,
-            skip_refactor=req.skip_refactor,
-        ):
-            yield f"data: {json.dumps(event)}\n\n"
-        yield "data: [DONE]\n\n"
+        try:
+            await asyncio.wait_for(_PIPELINE_SLOTS.acquire(), timeout=_PIPELINE_WAIT_TIMEOUT)
+        except asyncio.TimeoutError:
+            busy_event = {
+                "step": "Pipeline",
+                "status": "failed",
+                "data": {"error": "Server is busy running other generations. Please retry shortly."},
+            }
+            yield f"data: {json.dumps(busy_event)}\n\n"
+            yield "data: [DONE]\n\n"
+            return
+
+        try:
+            async for event in pipeline.run(
+                task=req.task,
+                language=req.language,
+                framework=req.framework,
+                skip_tests=req.skip_tests,
+                skip_refactor=req.skip_refactor,
+            ):
+                yield f"data: {json.dumps(event)}\n\n"
+            yield "data: [DONE]\n\n"
+        finally:
+            _PIPELINE_SLOTS.release()
 
     return StreamingResponse(
         event_stream(),
@@ -124,16 +164,27 @@ async def generate_stream(req: GenerateRequest):
 
 
 @router.post("/generate/quick")
-async def generate_quick(req: QuickGenerateRequest):
+@limiter.limit("10/minute")
+async def generate_quick(request: Request, req: QuickGenerateRequest):
     """
     Non-streaming single-shot code generation (no tests, no debug loop).
     Useful for quick checks and frontend testing.
     """
     from agents.code_generator import CodeGeneratorAgent
-    llm = OllamaClient(model=req.model)
-    agent = CodeGeneratorAgent(llm)
-    result = await agent.run(req.task, language=req.language)
-    return result
+    try:
+        await asyncio.wait_for(_PIPELINE_SLOTS.acquire(), timeout=_PIPELINE_WAIT_TIMEOUT)
+    except asyncio.TimeoutError:
+        raise HTTPException(
+            status_code=429,
+            detail="Server is busy running other generations. Please retry shortly.",
+        )
+    try:
+        llm = OllamaClient(model=req.model)
+        agent = CodeGeneratorAgent(llm)
+        result = await agent.run(req.task, language=req.language)
+        return result
+    finally:
+        _PIPELINE_SLOTS.release()
 
 
 @router.get("/health/ollama")
@@ -147,7 +198,7 @@ async def ollama_health():
 # ── RAG Endpoints ─────────────────────────────────────────────────────────────
 
 class IndexProjectRequest(BaseModel):
-    directory: str
+    directory: str = Field(..., min_length=1, max_length=500)
 
 
 @router.get("/rag/stats")
@@ -168,7 +219,8 @@ async def rag_seed_docs():
 
 
 @router.post("/rag/index-project")
-async def rag_index_project(req: IndexProjectRequest):
+@limiter.limit("3/minute")
+async def rag_index_project(request: Request, req: IndexProjectRequest):
     """Index a local project directory into the codebase RAG store.
 
     The directory is confined to the project root; paths outside it are rejected.

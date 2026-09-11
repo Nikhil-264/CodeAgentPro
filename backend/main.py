@@ -2,15 +2,41 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from api.routes import router
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
+from api.routes import router, limiter
 
 app = FastAPI(
     title="CodeAgent Pro",
     description="Agentic AI coding assistant with self-repair loop",
     version="1.0.0"
 )
+
+app.state.limiter = limiter
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": f"Rate limit exceeded: {exc.detail}. Please slow down."},
+    )
+
+
+# Requests are rejected above this size before any parsing happens, to stop
+# oversized payloads from being read into memory.
+MAX_REQUEST_BODY_BYTES = 1_000_000  # 1 MB
+
+
+@app.middleware("http")
+async def limit_body_size(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > MAX_REQUEST_BODY_BYTES:
+        return JSONResponse(status_code=413, content={"detail": "Request body too large."})
+    return await call_next(request)
+
 
 app.add_middleware(
     CORSMiddleware,

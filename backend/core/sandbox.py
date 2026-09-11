@@ -63,6 +63,29 @@ class ExecutionSandbox:
     DOCKER_IMAGE = "python:3.11-slim"
     TIMEOUT_SECONDS = 30
 
+    # Non-root uid:gid ("nobody") used for every container that doesn't need
+    # to install packages at runtime. Numeric IDs work without an /etc/passwd
+    # entry, so this holds across all three base images.
+    _NOBODY_UID = "65534:65534"
+
+    @staticmethod
+    def _safety_flags(non_root: bool = True) -> list:
+        """Common hardening flags applied to every `docker run` invocation:
+        fork-bomb protection, a CPU cap, no privilege escalation, and every
+        Linux capability dropped. `non_root` is False only for the one path
+        (Python test runs) that does `pip install` at container start and
+        therefore needs root to write into site-packages.
+        """
+        flags = [
+            "--pids-limit", "128",
+            "--cpus", "1",
+            "--security-opt", "no-new-privileges",
+            "--cap-drop", "ALL",
+        ]
+        if non_root:
+            flags += ["--user", ExecutionSandbox._NOBODY_UID]
+        return flags
+
     async def run_code(self, code: str, language: str = "Python") -> dict:
         use_docker = (not FORCE_LOCAL_SANDBOX) and (await check_docker())
         lang = language.lower()
@@ -78,14 +101,19 @@ class ExecutionSandbox:
         with tempfile.TemporaryDirectory() as tmpdir:
             code_path = Path(tmpdir) / filename
             code_path.write_text(code, encoding="utf-8")
+            # Made world-writable so the non-root container user can create
+            # files here (e.g. the compiled C++ binary); the directory is a
+            # throwaway per-run temp dir, so the loosened mode is harmless.
+            os.chmod(tmpdir, 0o777)
 
             if use_docker:
+                safety = self._safety_flags()
                 if ext == ".js":
-                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", "-v", f"{tmpdir}:/workspace:ro", "-w", "/workspace", "node:20-alpine", "node", filename]
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", *safety, "-v", f"{tmpdir}:/workspace:ro", "-w", "/workspace", "node:20-alpine", "node", filename]
                 elif ext == ".cpp":
-                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "gcc:latest", "sh", "-c", f"g++ -O2 {filename} -o solution && ./solution"]
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", *safety, "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "gcc:13", "sh", "-c", f"g++ -O2 {filename} -o solution && ./solution"]
                 else:
-                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", "-v", f"{tmpdir}:/workspace:ro", "-w", "/workspace", self.DOCKER_IMAGE, "python", filename]
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "256m", *safety, "-v", f"{tmpdir}:/workspace:ro", "-w", "/workspace", self.DOCKER_IMAGE, "python", filename]
                 return await self._run_subprocess(cmd)
             else:
                 if not _local_allowed():
@@ -126,14 +154,18 @@ class ExecutionSandbox:
         with tempfile.TemporaryDirectory() as tmpdir:
             (Path(tmpdir) / f"solution{ext}").write_text(code, encoding="utf-8")
             (Path(tmpdir) / f"test_solution{test_ext}").write_text(test_code, encoding="utf-8")
+            os.chmod(tmpdir, 0o777)
 
             if use_docker:
                 if ext == ".js":
-                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "node:20-alpine", "node", "--test", f"test_solution{test_ext}"]
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", *self._safety_flags(), "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "node:20-alpine", "node", "--test", f"test_solution{test_ext}"]
                 elif ext == ".cpp":
-                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "gcc:latest", "sh", "-c", f"g++ -O2 solution.cpp test_solution{test_ext} -o test_runner && ./test_runner"]
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", *self._safety_flags(), "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "gcc:13", "sh", "-c", f"g++ -O2 solution.cpp test_solution{test_ext} -o test_runner && ./test_runner"]
                 else:
-                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", self.DOCKER_IMAGE, "sh", "-c", "pip install pytest -q 2>/dev/null && pytest test_solution.py -v --tb=short 2>&1"]
+                    # Non-root is skipped here only: this path runs `pip install`
+                    # at container start, which needs to write into the
+                    # image's system site-packages (root-owned).
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", *self._safety_flags(non_root=False), "-v", f"{tmpdir}:/workspace", "-w", "/workspace", self.DOCKER_IMAGE, "sh", "-c", "pip install pytest -q 2>/dev/null && pytest test_solution.py -v --tb=short 2>&1"]
                 return await self._run_subprocess(cmd, timeout=60)
             else:
                 if not _local_allowed():
