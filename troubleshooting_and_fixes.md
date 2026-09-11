@@ -203,4 +203,52 @@ Added 3-attempt automatic retry loops with exponential backoff (`await asyncio.s
 ### Technical Interview Pitch
 > *"Single-shot LLM prompts lack awareness of private, un-indexed local codebases and cannot self-correct when execution fails. I designed CodeAgentPro with a **LangGraph state machine** and **Docker sandbox** so the system can run unit tests, capture stack traces, and feed execution errors back into a debugger agent. I incorporated **ChromaDB RAG** specifically for local repository indexing and long-term error memory—storing successful bug fixes so the model avoids repeating the same debugging mistakes on subsequent runs."*
 
+---
+
+## 20. System Safety, Security & Pipeline Guardrails Architecture
+
+### Overview
+**CodeAgent Pro** implements multi-layered defense-in-depth guardrails across container execution, API routing, LLM client interactions, orchestration state management, and agent output processing. These guardrails ensure that untrusted generated code cannot compromise the host system, rate-limits are handled gracefully, and pipeline loops abort safely on failures.
+
+---
+
+### 1. Sandbox & Container Security Guardrails ([sandbox.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/core/sandbox.py))
+* **Network Isolation (`--network none`)**: All Python, JavaScript, and C++ code and test execution containers operate without network access, preventing malicious HTTP calls, data exfiltration, or reverse shells from generated code.
+* **Resource & Memory Caps (`--memory 256m/512m`, `--cpus 1`, `--pids-limit 128`)**: Strict limits prevent infinite loops, fork-bombs, memory leak crashes, and CPU starvation on the host host machine.
+* **Privilege Escalation & Unprivileged Execution (`--security-opt no-new-privileges`, `--cap-drop ALL`, `--user 65534:65534`)**: Drops all Linux kernel capabilities, blocks setuid/setgid escalation, and runs execution workloads as the unprivileged `nobody` user.
+* **Subprocess Execution Timeouts (`TIMEOUT_SECONDS = 30` / `60`)**: Mandatory execution subprocess timeouts terminate hanging code or infinite loops automatically.
+* **Host Fallback Execution Guard (`LocalSandboxDisabledError`, `ALLOW_LOCAL_SANDBOX`)**: Host-level execution fallback when Docker is offline is strictly blocked by default. Explicit opt-in (`ALLOW_LOCAL_SANDBOX=true`) is required before code can run directly on the host machine.
+
+---
+
+### 2. API & Infrastructure Guardrails ([routes.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/api/routes.py))
+* **Endpoint Rate Limiting (`Slowapi`)**: Restricts incoming request bursts across API routes (`5/min` for streaming generation, `10/min` for quick generation, `3/min` for project indexing).
+* **Pipeline Concurrency Throttling (`MAX_CONCURRENT_PIPELINES = 3`, `asyncio.Semaphore`)**: Caps parallel agent pipelines to 3 concurrent slots with a 5-second fast-fail timeout to prevent server resource starvation or Docker daemon overload.
+* **Path Traversal / Directory Jail (`_safe_index_path`)**: Confines project indexing requests to paths within the project root directory, preventing arbitrary local filesystem read/indexing attempts.
+* **Input Request Validation (`GenerateRequest`, `_non_blank_task`)**: Validates tasks using Pydantic field validators (length 3–4000 characters, non-blank checks) and strict enum bounds for language (`Python`, `JavaScript`, `C++`) and provider (`ollama`, `groq`, `gemini`).
+
+---
+
+### 3. LLM Client Security & Resilience Guardrails ([llm_client.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/core/llm_client.py))
+* **API Key Secret Redaction**: Intercepts exception text and redacts active API keys (`***REDACTED***`) to prevent secret exposure in logs, HTTP responses, or SSE events.
+* **Header-Based Authentication**: Sends credentials exclusively through HTTP headers (`x-goog-api-key`, `Authorization: Bearer`), avoiding query-parameter key leaks in URLs.
+* **HTTP 429 Exponential Backoff**: Automatically handles rate limits via 4-attempt retry loops with `asyncio.sleep(3 * (attempt + 1))` backoff delays.
+* **Pre-Flight Key Verification**: Checks environment variable configurations (`GROQ_API_KEY`, `GEMINI_API_KEY`) prior to invocation, throwing informative setup errors rather than broken HTTP calls.
+
+---
+
+### 4. Orchestration & LangGraph Pipeline Guardrails ([graph.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/core/graph.py), [nodes.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/core/nodes.py))
+* **Conditional Edge Abort Guards (`should_abort`, `should_abort_after_test_gen`)**: Halts pipeline execution immediately if LLM generation returns an empty code block or API error, preventing unnecessary sandbox runs on invalid input.
+* **Debug Loop Limits (`MAX_DEBUG_ATTEMPTS = 5`)**: Enforces a strict threshold of 5 debug repair attempts to avoid infinite repair loops.
+* **Zero-Test False Positive Protection**: `node_run_tests` scans pytest output for `"collected 0 items"` or `"no tests ran"` and overrides `tests_passed = False` to prevent invalid test suite completions.
+* **Staged Fix Verification Guardrail**: Debugger fixes are stored in `pending_fix` state and only committed to ChromaDB RAG error memory after a subsequent `node_run_tests` confirms that tests actually pass.
+
+---
+
+### 5. Agent Output & Code Sanitization Guardrails ([code_generator.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/agents/code_generator.py), [test_generator.py](file:///c:/Users/HP/Documents/Coding%20journeys/CV%20projects/CodeAgentPro/backend/agents/test_generator.py))
+* **Regex Code Block Extraction (`_clean_code`)**: Uses regular expression matching (`re.finditer`) to extract code strictly within markdown blocks, stripping reasoning preambles, chain-of-thought text, and postambles.
+* **Agent Step Auto-Retries**: Implements 3-attempt internal retries with exponential backoff (`asyncio.sleep(2 * attempt)`) in generation agents to handle transient LLM output glitches.
+* **Strict Prompt Language Constraints**: Prompts strictly bind output to the target language (`Python`, `JavaScript`, `C++`), preventing unexpected cross-language rewriting during refactoring or debugging.
+
+
 
