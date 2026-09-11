@@ -1,0 +1,6 @@
+# Pre-installs pytest so the Python test-run sandbox container
+# (backend/core/sandbox.py) can execute fully offline (--network none)
+# without needing to reach PyPI at runtime. Built lazily on first use and
+# cached by the Docker daemon; only rebuilds when this file changes.
+FROM python:3.11-slim
+RUN pip install --no-cache-dir pytest

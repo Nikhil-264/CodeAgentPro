@@ -278,6 +278,8 @@ CodeAgentPro/
     ├── docker-compose.yml
     ├── Dockerfile.backend
     ├── Dockerfile.frontend
+    ├── Dockerfile.pytest-sandbox  # Pytest pre-baked in, so the Python test
+    │                              # sandbox stays --network none at runtime
     └── nginx.conf
 ```
 

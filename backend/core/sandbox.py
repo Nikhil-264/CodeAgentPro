@@ -5,6 +5,12 @@ import shutil
 import sys
 from pathlib import Path
 
+# Repo root = two levels up from backend/core/sandbox.py
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+_PYTEST_IMAGE = "codeagentpro-pytest-sandbox:py3.11-slim"
+_PYTEST_IMAGE_READY = None  # tri-state cache: None = unchecked this process
+
 _DOCKER_AVAILABLE = None
 FORCE_LOCAL_SANDBOX = os.getenv("FORCE_LOCAL_SANDBOX", "false").lower() == "true"
 # Local fallback runs generated code directly on the host with NO isolation
@@ -52,6 +58,51 @@ async def check_docker() -> bool:
         _DOCKER_AVAILABLE = False
 
     return _DOCKER_AVAILABLE
+
+
+async def _ensure_pytest_image() -> bool:
+    """Build (once, lazily) a local image with pytest pre-installed.
+
+    The Python test-run container executes with --network none for
+    isolation, so pytest can't be `pip install`-ed at container start —
+    it has to already be baked into the image. `docker build` itself runs
+    on the host daemon (which does have network access) the first time
+    this image is needed; after that it's a fast local cache hit.
+    """
+    global _PYTEST_IMAGE_READY
+    if _PYTEST_IMAGE_READY is not None:
+        return _PYTEST_IMAGE_READY
+
+    import subprocess
+
+    try:
+        inspect_res = await asyncio.to_thread(
+            subprocess.run,
+            ["docker", "image", "inspect", _PYTEST_IMAGE],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=5,
+        )
+        if inspect_res.returncode == 0:
+            _PYTEST_IMAGE_READY = True
+            return True
+    except Exception:
+        pass
+
+    dockerfile = _PROJECT_ROOT / "docker" / "Dockerfile.pytest-sandbox"
+    try:
+        build_res = await asyncio.to_thread(
+            subprocess.run,
+            ["docker", "build", "-f", str(dockerfile), "-t", _PYTEST_IMAGE, str(dockerfile.parent)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=180,
+        )
+        _PYTEST_IMAGE_READY = (build_res.returncode == 0)
+    except Exception:
+        _PYTEST_IMAGE_READY = False
+
+    return _PYTEST_IMAGE_READY
 
 
 class ExecutionSandbox:
@@ -162,10 +213,18 @@ class ExecutionSandbox:
                 elif ext == ".cpp":
                     cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", *self._safety_flags(), "-v", f"{tmpdir}:/workspace", "-w", "/workspace", "gcc:13", "sh", "-c", f"g++ -O2 solution.cpp test_solution{test_ext} -o test_runner && ./test_runner"]
                 else:
-                    # Non-root is skipped here only: this path runs `pip install`
-                    # at container start, which needs to write into the
-                    # image's system site-packages (root-owned).
-                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", *self._safety_flags(non_root=False), "-v", f"{tmpdir}:/workspace", "-w", "/workspace", self.DOCKER_IMAGE, "sh", "-c", "pip install pytest -q 2>/dev/null && pytest test_solution.py -v --tb=short 2>&1"]
+                    # Preferred path: a pre-built image with pytest already
+                    # installed, so the test container can stay fully
+                    # network-isolated (--network none) and run as non-root.
+                    # Falls back to installing pytest at container start
+                    # (requires root, and requires network — which
+                    # contradicts --network none — kept only so this never
+                    # hard-fails if the image build itself is unavailable).
+                    if await _ensure_pytest_image():
+                        image, test_cmd, non_root = _PYTEST_IMAGE, "pytest test_solution.py -v --tb=short 2>&1", True
+                    else:
+                        image, test_cmd, non_root = self.DOCKER_IMAGE, "pip install pytest -q 2>/dev/null && pytest test_solution.py -v --tb=short 2>&1", False
+                    cmd = ["docker", "run", "--rm", "--network", "none", "--memory", "512m", *self._safety_flags(non_root=non_root), "-v", f"{tmpdir}:/workspace", "-w", "/workspace", image, "sh", "-c", test_cmd]
                 return await self._run_subprocess(cmd, timeout=60)
             else:
                 if not _local_allowed():
