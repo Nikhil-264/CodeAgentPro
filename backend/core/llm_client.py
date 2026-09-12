@@ -7,7 +7,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+_raw_base = os.getenv("OLLAMA_BASE_URL") or os.getenv("OLLAMA_HOST", "http://localhost:11434")
+if not _raw_base.startswith("http://") and not _raw_base.startswith("https://"):
+    OLLAMA_BASE_URL = f"http://{_raw_base}:11434" if ":" not in _raw_base else f"http://{_raw_base}"
+else:
+    OLLAMA_BASE_URL = _raw_base
 
 
 class OllamaClient:

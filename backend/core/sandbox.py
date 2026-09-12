@@ -138,7 +138,7 @@ class ExecutionSandbox:
         return flags
 
     async def run_code(self, code: str, language: str = "Python") -> dict:
-        use_docker = (not FORCE_LOCAL_SANDBOX) and (await check_docker())
+        use_docker = (not FORCE_LOCAL_SANDBOX) and (not ALLOW_LOCAL_SANDBOX) and (await check_docker())
         lang = language.lower()
 
         ext = ".py"
@@ -190,7 +190,7 @@ class ExecutionSandbox:
                 return res
 
     async def run_tests(self, code: str, test_code: str, language: str = "Python") -> dict:
-        use_docker = (not FORCE_LOCAL_SANDBOX) and (await check_docker())
+        use_docker = (not FORCE_LOCAL_SANDBOX) and (not ALLOW_LOCAL_SANDBOX) and (await check_docker())
         lang = language.lower()
 
         ext = ".py"

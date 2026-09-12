@@ -22,7 +22,10 @@ except ImportError:
 
 
 def _llm(state: PipelineState) -> OllamaClient:
-    return OllamaClient(model=state.get("model", "deepseek-coder:6.7b"))
+    return OllamaClient(
+        model=state.get("model", "deepseek-coder:6.7b"),
+        provider=state.get("provider")
+    )
 
 
 def _event(step: str, status: str, data: dict = None) -> dict:
